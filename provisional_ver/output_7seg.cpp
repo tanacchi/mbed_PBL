@@ -1,1 +1,3 @@
-void output_7seg(int* array){}
+void output_7seg(int* array){
+
+}

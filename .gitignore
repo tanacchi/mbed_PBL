@@ -1,4 +1,4 @@
 *.sh
 BACK_UP/
-test*
-*.out
+Test/test*
+Test/*.out

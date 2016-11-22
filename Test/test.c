@@ -1,46 +1,42 @@
 #include <stdio.h>
 
-#define ON 1
-#define OFF 0
+double powpow(int a, int b){
+  double dest = 1;
+  int i;
+  
+  if (b > 0)
+    for (i = 0; i < b; i++) dest *= (double)a;
+  else if (b < 0)
+    for (i = 0; i < -b; i++) dest /= (double)a;
+  else dest = 1;
+  
+  return dest;
+}
 
-int* exchange_NUMtoARY(int num){
+int* split_Numerical_Pos(double dd){
+  int ary[3] = {};
+  int *dest_num = ary;
+  int  i, j;
 
-  int* dest;
- const int sev_seg_ary[10][7] = {
-    {ON,  ON,  ON,  ON,  ON,  ON , OFF},
-    {OFF, ON,  ON,  OFF, OFF, OFF, OFF},
-    {ON,  ON,  OFF, ON,  ON,  OFF, ON },
-    {ON,  ON,  ON,  ON,  OFF, OFF, ON },
-    {OFF, ON , ON,  OFF, OFF, ON,  ON },
-    {ON,  OFF, ON,  ON,  ON,  OFF, ON },
-    {ON,  OFF, ON,  ON,  ON,  ON,  ON },
-    {ON,  ON,  ON,  OFF, OFF, OFF, OFF},
-    {ON,  ON,  ON,  ON,  ON,  ON,  ON },
-    {ON,  ON,  ON,  ON,  OFF, ON,  ON }
-  };
-
-  return dest = sev_seg_ary[num];
+  dd += 0.05;
+  
+  for (i = 1; i > -2; i--){ 
+    for (j = 0; dd >= powpow(10, i); j++){ 
+      dd -=powpow(10, i);
+    }
+    ary[1-i] = j;
+  }
+  return dest_num;
 }
 
 int main(void){
 
-  int array[7];
-
-  int i, j;
-  char ONOFF[70];
- 
-  for (j = 0; j < 10; j++){
-    for (i = 0; i < 7; i++)
-      array[i] = exchange_NUMtoARY(1)[i];
-    
-    for (i = 0; i < 7; i++){
-      if (array[i] == 1)
-        printf("ON,  ");
-      else
-        printf("OFF, ");
-    }
-    putchar('\n');
+  int i;
+  for (i = 0; i < 3; i++){
+    if (i == 2) putchar('.');
+    printf("%d", split_Numerical_Pos(23.48)[i]);
   }
+  putchar('\n');
   
   return 0;
 }

@@ -15,12 +15,14 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 ***
 以下関数シリーズの説明  
 
+### 温度を測って出力
+
 Name | Description  
 --- | ---  
-`int* exchange_NUMtoARY(int num);` | int型数値に対応するON/OFFの並び(配列)を吐き出す  
-`double get_Temperature(void);` | AnalogInから温度センサーの値を読む  
-`int* split_Numerical_Pos(double ondo);` | 3桁のdouble型実数を3列のint型配列に変換  
-`void output_7seg(int *src)` | 配列を受け取って 7セグメントLEDに出力  
+`double get_Temperature(void);` | AnalogInから温度センサーの実数値を読む(3桁)  
+`int* split_Numerical_Pos(double ondo);` | 3桁のdouble型実数をint型整数×3の並び(配列)に変換  
+`int* exchange_NUMtoARY(int num);` | 桁ごとのint型数値に対応するON/OFFの並び(配列)を吐き出す  
+`void output_7seg(int *src)` | ON/OFFの並び(配列)を受け取って 7セグメントLEDに出力  
 
 ***
 質問とかあったらIssueのところなんかで受け付けてます〜

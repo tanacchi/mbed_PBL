@@ -26,10 +26,10 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 
 Name | Description  
 --- | ---  
-`double get_Temperature(void);` | AnalogInから温度センサーの実数値を読む(3桁)  
-`int* split_Numerical_Pos(double ondo);` | 3桁のdouble型実数をint型整数×3の並び(配列)に変換  
+`double get_Temperature(void);` | AnalogInから温度センサーの実数値を読む
+`int* split_Numerical_Pos(double ondo);` | 読み取ったdouble型実数の上から3桁をint型整数×3の並び(配列)に変換  
 `int* exchange_NUMtoARY(int num);` | 桁ごとのint型数値に対応するON/OFFの並び(配列)を吐き出す  
-`void output_7seg(int *src)` | ON/OFFの並び(配列)を受け取って 7セグメントLEDに出力  
+`void output_7seg(int *src)` | ON/OFFの並び(配列)を受け取って 7セグメントLEDに出力(1桁だけ)  
 
 ***
 質問とかあったらIssueのところなんかで受け付けてます〜 (2回目)

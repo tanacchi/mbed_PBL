@@ -2,6 +2,8 @@
 
 BACK_UP/
 
+!Test/
+
 Test/*test*
 Test/*.out
 

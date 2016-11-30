@@ -1,4 +1,4 @@
-void input_inteder_ary(int **src);
+void input_inteder_ary(int* fromSplit, int **toOutput);
 
 void input_inteder_ary(int* fromSplit, int **toOutput){
   int i, j;

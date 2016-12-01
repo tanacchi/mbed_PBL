@@ -1,4 +1,4 @@
-void array_maker(double dd);
+void array_maker(double dd, int* toInput);
 
 void array_maker(double dd, int* toInput){
   int i;

@@ -1,8 +1,5 @@
 // #include "mbed.h"
 #include <stdio.h>
-#include <sstream>
-#include <cstdlib>
-#include <stdlib.h>
 
 #define ON 1
 #define OFF 0
@@ -41,14 +38,7 @@ int main(void){
     for (j = 0; j < 7; j++)
       printf("%d", segment_array[i][j]);
     putchar('\n');
-  }
-  
-  // for (i = 0; i < 3; i++){
-  //   for (j = 0; j < 7; j++)
-  //     printf("%d ", segment_array[i][j]);
-  //   putchar('\n');
-  // }
-  
+  }  
 }
 
 int* exchange_NUMtoARY(int num){

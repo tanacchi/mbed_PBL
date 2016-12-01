@@ -11,7 +11,7 @@ int* exchange_NUMtoARY(int num);
 double powpow(int a, int b);
 int* split_Numerical_Pos(double dd);
 void array_maker(double dd, int* toInput);
-void input_inteder_ary(int* fromSplit, int **toOutput);
+void input_inteder_ary(int* fromSplit, int toOutput[3][7]);
   
 int sevseg_ary[10][7] = {
   {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
@@ -35,12 +35,8 @@ int main(void){
   
   array_maker(dd, splited_num);
 
-  for (i = 0; i < 3; i++)
-    for (j = 0; j < 7; j++)
-      segment_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
+  input_inteder_ary(splited_num, segment_array);
 
-  // input_inteder_ary(splited_num, segment_array);
-  
   for (i = 0; i < 3; i++){
     for (j = 0; j < 7; j++)
       printf("%d", segment_array[i][j]);
@@ -92,9 +88,9 @@ void array_maker(double dd, int* toInput){
   for (i = 0; i < 3; i++) toInput[i] = split_Numerical_Pos(dd)[i];
 }
 
-void input_inteder_ary(int* fromSplit, int** toOutput){
+void input_inteder_ary(int* splited_num, int segment_array[3][7]){
   int i, j;
   for (i = 0; i < 3; i++)
-    for (j  = 0; j < 7; j++)
-      toOutput[i][j] = exchange_NUMtoARY(fromSplit[i])[j];
+    for (j = 0; j < 7; j++)
+      segment_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
 }

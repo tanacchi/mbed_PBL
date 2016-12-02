@@ -5,7 +5,7 @@
 ## 温度計に関するやつ
 
 * 二次元配列読んで順番に output_sevsegに流す奴  
-  'void output_Temperature(int **src);'  
+  `void output_Temperature(int **src);`
 
 ## カウンターに関するやつ
 

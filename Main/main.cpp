@@ -1,8 +1,5 @@
 // #include "mbed.h"
 #include <stdio.h>
-#include <sstream>
-#include <cstdlib>
-#include <stdlib.h>
 
 #define ON 1
 #define OFF 0
@@ -10,7 +7,9 @@
 int* exchange_NUMtoARY(int num);
 double powpow(int a, int b);
 int* split_Numerical_Pos(double dd);
-
+void array_maker(double dd, int* toInput);
+void input_inteder_ary(int* fromSplit, int toOutput[3][7]);
+  
 int sevseg_ary[10][7] = {
   {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
   {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
@@ -26,28 +25,23 @@ int sevseg_ary[10][7] = {
   
 int main(void){
 
-  int test_array[3] = {};
-  int splited_num;
+  int splited_num[3];
   int i, j;
+  double dd = 79.1;
+  int segment_array[3][7] = {};
+  
+  array_maker(dd, splited_num);
 
-  int segment_array[7];
-  
-  for (i = 0; i < 3; i++)
-    test_array[i] = split_Numerical_Pos(23.1)[i];
-  
+  input_inteder_ary(splited_num, segment_array);
+
   for (i = 0; i < 3; i++){
     for (j = 0; j < 7; j++)
-      segment_array[j] = exchange_NUMtoARY(test_array[i])[j];
-    
-    for (j = 0; j < 7; j++)
-      printf("%d  ", segment_array[j]);
-    
+      printf("%d", segment_array[i][j]);
     putchar('\n');
-  }
+  }  
 }
 
 int* exchange_NUMtoARY(int num){
-
   int* dest;
   return dest = sevseg_ary[num];
 }
@@ -77,4 +71,16 @@ int* split_Numerical_Pos(double dd){
     ary[1-i] = j;
   }
   return dest_num;
+}
+
+void array_maker(double dd, int* toInput){
+  int i;
+  for (i = 0; i < 3; i++) toInput[i] = split_Numerical_Pos(dd)[i];
+}
+
+void input_inteder_ary(int* splited_num, int segment_array[3][7]){
+  int i, j;
+  for (i = 0; i < 3; i++)
+    for (j = 0; j < 7; j++)
+      segment_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
 }

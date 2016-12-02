@@ -1,7 +1,8 @@
 #define ON 1
 #define OFF 0
 
-int* exchange_NUMtoARY(int num){ // 引数のint型整数に対応するON/OFFの並び(配列)を渡してくれる
+int* exchange_NUMtoARY(int num){
+  // 引数のint型整数に対応するON/OFFの並び(配列)を渡してくれる
 
   int* dest;
   const int sevseg_ary[10][7] = {

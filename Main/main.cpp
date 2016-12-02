@@ -9,7 +9,7 @@ double powpow(int a, int b);
 int* split_Numerical_Pos(double dd);
 void array_maker(double dd, int* toInput);
 void input_inteder_ary(int* fromSplit, int toOutput[3][7]);
-  
+ 
 int sevseg_ary[10][7] = {
   {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
   {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
@@ -31,14 +31,13 @@ int main(void){
   int segment_array[3][7] = {};
   
   array_maker(dd, splited_num);
-
   input_inteder_ary(splited_num, segment_array);
 
   for (i = 0; i < 3; i++){
     for (j = 0; j < 7; j++)
       printf("%d", segment_array[i][j]);
     putchar('\n');
-  }  
+  }
 }
 
 int* exchange_NUMtoARY(int num){
@@ -66,8 +65,7 @@ int* split_Numerical_Pos(double dd){
   dd += 0.05; 
   
   for (i = 1; i > -2; i--){ 
-    for (j = 0; dd >= powpow(10, i); j++) 
-      dd -=powpow(10, i);
+    for (j = 0; dd >= powpow(10, i); j++) dd -=powpow(10, i);
     ary[1-i] = j;
   }
   return dest_num;

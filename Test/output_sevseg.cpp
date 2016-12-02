@@ -28,7 +28,6 @@ int sevseg_ary[10][7] = {
   {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
 };
 
-
 int main(){
 
   int n1;
@@ -57,25 +56,9 @@ int main(){
       dig3 = 0;
       num = n3;
     }
-
-     // input_array(num);
-
-    if (num == 0){a=1; b=1; c=1; d=1; e=1; f=1; g=0;}
-    if (num == 1){a=0; b=1; c=1; d=0; e=0; f=0; g=0;}
-    if (num == 2){a=1; b=1; c=0; d=1; e=1; f=0; g=1;}   
-    if (num == 3){a=1; b=1; c=1; d=1; e=0; f=0; g=1;}
-    if (num == 4){a=0; b=1; c=1; d=0; e=0; f=1; g=1;}
-    if (num == 5){a=1; b=0; c=1; d=1; e=0; f=1; g=1;}
-    if (num == 6){a=1; b=0; c=1; d=1; e=1; f=1; g=1;}
-    if (num == 7){a=1; b=1; c=1; d=0; e=0; f=0; g=0;}
-    if (num == 8){a=1; b=1; c=1; d=1; e=1; f=1; g=1;}
-    if (num == 9){a=1; b=1; c=1; d=1; e=0; f=1; g=1;}
-    wait(0.001);
-
-    i++;
-    if (i == 4) i = 1;  
+    
+    input_array(num);    
   }
-
 }
 
 void input_array(int number){
@@ -87,7 +70,6 @@ void input_array(int number){
   f = sevseg_array[number][5];
   g = sevseg_array[number][6];
 }
-
 
 void output_7seg(int* array){
   ;

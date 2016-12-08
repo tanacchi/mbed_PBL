@@ -5,6 +5,6 @@ BACK_UP/
 !Test/
 
 Test/*test*
-Test/*.out
 
-Main/*.out
+*.out
+

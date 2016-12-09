@@ -1,4 +1,4 @@
-*.sh
+!*.sh
 
 BACK_UP/
 

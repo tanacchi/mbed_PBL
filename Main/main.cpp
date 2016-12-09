@@ -1,4 +1,5 @@
 // #include "mbed.h"
+#include <stdio.h>
 
 #define ON 1
 #define OFF 0
@@ -26,12 +27,17 @@ int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
 
 int main(void){
   
-  double tmp = 23.5;
+  double tmp = 11.1;
   int splited_num[3];
   int segment_array[3][SEGMENT_NUM];
   
   array_maker(tmp, splited_num);
   input_inteder_ary(splited_num, segment_array);
+
+  for (int i = 0; i < 3; i++){
+    for (int j = 0; j < 7; j++) printf("%d ", segment_array[i][j]);
+      putchar('\n');
+  }
 }
 
 int* exchange_NUMtoARY(int num){
@@ -52,12 +58,14 @@ double powpow(int a, int b){
 int* split_Numerical_Pos(double tmp){
   int ary[3];
   int* dest = ary;
+  int i, j, k = 0;
   
   tmp += 0.05; 
   
-  for (int i = 1; i > -2; i--){ 
-    for (int j = 0; tmp >= powpow(10, i); j++) tmp -=powpow(10, i);
-    ary[1-i] = j;
+  for (i = 1; i > -2; i--){ 
+    for (j = 0; tmp >= powpow(10, i); j++) tmp -=powpow(10, i);
+    ary[k] = j;
+    k++;
   }
   return dest;
 }

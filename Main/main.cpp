@@ -1,10 +1,14 @@
 // #include "mbed.h"
 #include <stdio.h>
 
+#define MBED_VOLTAGE 3.3
+
 #define ON 1
 #define OFF 0
 #define SEGMENT_NUM 7
 #define NUM_PATTERN 10
+
+#define TMP_SENSOR_PIN p20
 
 #define SEGMENT_A p10
 #define SEGMENT_B p11
@@ -67,11 +71,15 @@ public:
   // void output_sevseg(int output_array[WIDTH][SEGMENT_NUM]);
 };
 
+double powpow(int a, int b);
+double get_Temperature(void);
+
 int main(void){
 
+  double data = get_Temperature();
   sevseg_LED tmp;
-
-  tmp.set_number(12);
+  
+  tmp.set_number(data);
   tmp.set_head_tale(1);
   tmp.split_Numerical_Pos();
   tmp.input_inteder_ary();
@@ -79,6 +87,12 @@ int main(void){
   //  tmp.output_sevseg();
   
   return 0;
+}
+
+double get_Temperature(void){
+  AnalogIn mysensor(TMP_SENSOR_PIN);
+  double replyed_vol  = mysensor * MBED_VOLTAGE;
+  return replyed_vol * 100;
 }
 
 double powpow(int a, int b){

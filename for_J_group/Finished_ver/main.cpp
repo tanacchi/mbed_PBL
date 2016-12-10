@@ -6,11 +6,36 @@
 #define SEGMENT_NUM 7
 #define NUM_PATTERN 10
 
-int* exchange_NUMtoARY(int num);
-double powpow(int a, int b);
-int* split_Numerical_Pos(double tmp);
-void array_maker(double tmp, int* toInput);
-void input_inteder_ary(int* fromSplit, int toOutput[3][SEGMENT_NUM]);
+#define SEGMENT_A p10
+#define SEGMENT_B p11
+#define SEGMENT_C p12
+#define SEGMENT_D p13
+#define SEGMENT_E p14
+#define SEGMENT_F p15
+#define SEGMENT_G p16
+
+#define DIG_1_PIN p21
+#define DIG_2_PIN p22
+#define DIG_3_PIN p23
+
+#define WIDTH 2
+
+//   DigitalOut segment[7] = {
+//     DigitalOut (SEGMENT_A),
+//     DigitalOut (SEGMENT_B),
+//     DigitalOut (SEGMENT_C),
+//     DigitalOut (SEGMENT_D),
+//     DigitalOut (SEGMENT_E),
+//     DigitalOut (SEGMENT_F),
+//     DigitalOut (SEGMENT_G)
+//   };
+
+//   DigitalOut digit[3] = {
+//     DigitalOut (DIG_1_PIN),
+//     DigitalOut (DIG_2_PIN),
+//     DigitalOut (DIG_3_PIN)
+//   };
+
 
 int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
   {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
@@ -25,57 +50,95 @@ int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
   {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
 };
 
-int main(void){
-  
-  double tmp = 11.1;
-  int splited_num[3];
-  int segment_array[3][SEGMENT_NUM];
-  
-  array_maker(tmp, splited_num);
-  input_inteder_ary(splited_num, segment_array);
+class sevseg_LED{
+  int head, tale;
+  double input_number;
+  int splited_num[WIDTH];
+  int output_array[WIDTH][SEGMENT_NUM]; 
+public:
+  void set_number(double num);
+  void set_head_tale(int head);
+  void split_Numerical_Pos();
+  int* exchange_NUMtoARY(int element);
+  void input_inteder_ary();
+  void output_console();
+  // void output_digit(int out_digit[SEGMENT_NUM]);    
+  // void digits_init();
+  // void output_sevseg(int output_array[WIDTH][SEGMENT_NUM]);
+};
 
-  for (int i = 0; i < 3; i++){
-    for (int j = 0; j < 7; j++) printf("%d ", segment_array[i][j]);
-      putchar('\n');
-  }
+double powpow(int a, int b);
+
+int main(void){
+
+  sevseg_LED tmp;
+
+  tmp.set_number(12);
+  tmp.set_head_tale(1);
+  tmp.split_Numerical_Pos();
+  tmp.input_inteder_ary();
+  tmp.output_console();
+  // tmp.output_sevseg();
+  
+  return 0;
 }
 
-int* exchange_NUMtoARY(int num){
-  return sevseg_ary[num];
+void sevseg_LED::set_head_tale(int input_head){ // head < tale　-> Err!!
+  head = input_head;
+  tale = head - WIDTH;
+}
+
+void sevseg_LED::set_number(double num){
+  input_number = num;
+}
+
+int* sevseg_LED::exchange_NUMtoARY(int element){
+  return sevseg_ary[element];
 }
 
 double powpow(int a, int b){
   double dest = 1;
+  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
+  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
   
-  if (b > 0)
-    for (int i = 0; i < b; i++) dest *= (double)a;
-  if (b < 0)
-    for (int i = 0; i > b; i--) dest /= (double)a;
-
   return dest;
 }
 
-int* split_Numerical_Pos(double tmp){
-  int ary[3];
-  int* dest = ary;
-  int i, j, k = 0;
+void sevseg_LED::split_Numerical_Pos(){
+  int j, k = 0;
   
-  tmp += 0.05; 
-  
-  for (i = 1; i > -2; i--){ 
-    for (j = 0; tmp >= powpow(10, i); j++) tmp -=powpow(10, i);
-    ary[k] = j;
-    k++;
+  for (int i = head; i > tale-1; i--){ 
+    for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
+    splited_num[k++] = j;
   }
-  return dest;
 }
 
-void array_maker(double tmp, int* toInput){
-  for (int i = 0; i < 3; i++) toInput[i] = split_Numerical_Pos(tmp)[i];
-}
-
-void input_inteder_ary(int* splited_num, int segment_array[3][SEGMENT_NUM]){
-  for (int i = 0; i < 3; i++)
+void sevseg_LED::input_inteder_ary(){
+  for (int i = 0; i < WIDTH; i++)
     for (int j = 0; j < SEGMENT_NUM; j++)
-      segment_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
+      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
 }
+
+void sevseg_LED::output_console(){
+  for (int i = 0; i < WIDTH; i++){
+    for (int j = 0; j < SEGMENT_NUM; j++) printf("%d ", output_array[i][j]);
+    putchar('\n');
+  }  
+}
+
+// void sevseg_LED::output_digit(int out_digit[SEGMENT_NUM]){
+//   for (int i = 0; i < SEGMENT_NUM; i++)
+//     segment[i] = out_digit[i];  
+// }
+
+// void sevseg_LED::digits_init(){
+//   for (int i = 0; i < WIDTH; i++)digit[i] = 1;
+// }
+
+// void sevseg_LED::output_sevseg(){ 
+//   digits_init();
+//   for (int i = 0; i < WIDTH; i++){
+//     digit[i] = 0;
+//     output_digit(output_array[i]);
+//   }
+// }

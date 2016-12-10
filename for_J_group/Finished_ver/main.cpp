@@ -1,10 +1,14 @@
-// #include "mbed.h"
+#include "mbed.h"
 #include <stdio.h>
+
+#define MBED_VOLTAGE 3.3
 
 #define ON 1
 #define OFF 0
 #define SEGMENT_NUM 7
 #define NUM_PATTERN 10
+
+#define TMP_SENSOR_PIN p20
 
 #define SEGMENT_A p10
 #define SEGMENT_B p11
@@ -20,21 +24,21 @@
 
 #define WIDTH 2
 
-//   DigitalOut segment[7] = {
-//     DigitalOut (SEGMENT_A),
-//     DigitalOut (SEGMENT_B),
-//     DigitalOut (SEGMENT_C),
-//     DigitalOut (SEGMENT_D),
-//     DigitalOut (SEGMENT_E),
-//     DigitalOut (SEGMENT_F),
-//     DigitalOut (SEGMENT_G)
-//   };
+DigitalOut segment[7] = {
+  DigitalOut (SEGMENT_A),
+  DigitalOut (SEGMENT_B),
+  DigitalOut (SEGMENT_C),
+  DigitalOut (SEGMENT_D),
+  DigitalOut (SEGMENT_E),
+  DigitalOut (SEGMENT_F),
+  DigitalOut (SEGMENT_G)
+};
 
-//   DigitalOut digit[3] = {
-//     DigitalOut (DIG_1_PIN),
-//     DigitalOut (DIG_2_PIN),
-//     DigitalOut (DIG_3_PIN)
-//   };
+DigitalOut digit[3] = {
+  DigitalOut (DIG_1_PIN),
+  DigitalOut (DIG_2_PIN),
+  DigitalOut (DIG_3_PIN)
+};
 
 
 int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
@@ -62,25 +66,42 @@ public:
   int* exchange_NUMtoARY(int element);
   void input_inteder_ary();
   void output_console();
-  // void output_digit(int out_digit[SEGMENT_NUM]);    
-  // void digits_init();
-  // void output_sevseg(int output_array[WIDTH][SEGMENT_NUM]);
+  void output_digit(int out_digit[SEGMENT_NUM]);    
+  void digits_init();
+  void output_sevseg();
 };
 
 double powpow(int a, int b);
+double get_Temperature(void);
 
 int main(void){
 
+  double data;
   sevseg_LED tmp;
 
-  tmp.set_number(12);
-  tmp.set_head_tale(1);
-  tmp.split_Numerical_Pos();
-  tmp.input_inteder_ary();
-  tmp.output_console();
-  // tmp.output_sevseg();
+  while (1){
+    data = get_Temperature();
+    tmp.set_number(data);
+    tmp.set_head_tale(1);
+    tmp.split_Numerical_Pos();
+    tmp.input_inteder_ary();
+    tmp.output_console();
+    //  tmp.output_sevseg();
+  }
+}
+
+double get_Temperature(void){
+  AnalogIn mysensor(TMP_SENSOR_PIN);
+  double replyed_vol  = mysensor * MBED_VOLTAGE;
+  return replyed_vol * 100;
+}
+
+double powpow(int a, int b){
+  double dest = 1;
+  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
+  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
   
-  return 0;
+  return dest;
 }
 
 void sevseg_LED::set_head_tale(int input_head){ // head < tale　-> Err!!
@@ -96,18 +117,10 @@ int* sevseg_LED::exchange_NUMtoARY(int element){
   return sevseg_ary[element];
 }
 
-double powpow(int a, int b){
-  double dest = 1;
-  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
-  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
-  
-  return dest;
-}
-
 void sevseg_LED::split_Numerical_Pos(){
-  int j, k = 0;
+  int i, j, k = 0;
   
-  for (int i = head; i > tale-1; i--){ 
+  for (i = head; i > tale-1; i--){ 
     for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
     splited_num[k++] = j;
   }
@@ -126,19 +139,20 @@ void sevseg_LED::output_console(){
   }  
 }
 
-// void sevseg_LED::output_digit(int out_digit[SEGMENT_NUM]){
-//   for (int i = 0; i < SEGMENT_NUM; i++)
-//     segment[i] = out_digit[i];  
-// }
+void sevseg_LED::digits_init(){
+  for (int i = 0; i < WIDTH; i++)digit[i] = 1;
+}
 
-// void sevseg_LED::digits_init(){
-//   for (int i = 0; i < WIDTH; i++)digit[i] = 1;
-// }
+void sevseg_LED::output_sevseg(){ 
+  digits_init();
+  for (int i = 0; i < WIDTH; i++){
+    digit[i] = 0;
+    output_digit(output_array[i]);
+    wait(0.01);
+  }
+}
 
-// void sevseg_LED::output_sevseg(){ 
-//   digits_init();
-//   for (int i = 0; i < WIDTH; i++){
-//     digit[i] = 0;
-//     output_digit(output_array[i]);
-//   }
-// }
+void sevseg_LED::output_digit(int out_digit[SEGMENT_NUM]){
+  for (int i = 0; i < SEGMENT_NUM; i++)
+    segment[i] = out_digit[i];  
+}

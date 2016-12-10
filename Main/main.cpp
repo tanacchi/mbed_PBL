@@ -1,4 +1,4 @@
-// #include "mbed.h"
+#include "mbed.h"
 #include <stdio.h>
 
 #define MBED_VOLTAGE 3.3
@@ -22,23 +22,23 @@
 #define DIG_2_PIN p22
 #define DIG_3_PIN p23
 
-#define WIDTH 2
+#define WIDTH 3
 
-//   DigitalOut segment[7] = {
-//     DigitalOut (SEGMENT_A),
-//     DigitalOut (SEGMENT_B),
-//     DigitalOut (SEGMENT_C),
-//     DigitalOut (SEGMENT_D),
-//     DigitalOut (SEGMENT_E),
-//     DigitalOut (SEGMENT_F),
-//     DigitalOut (SEGMENT_G)
-//   };
+DigitalOut segment[7] = {
+  DigitalOut (SEGMENT_A),
+  DigitalOut (SEGMENT_B),
+  DigitalOut (SEGMENT_C),
+  DigitalOut (SEGMENT_D),
+  DigitalOut (SEGMENT_E),
+  DigitalOut (SEGMENT_F),
+  DigitalOut (SEGMENT_G)
+};
 
-//   DigitalOut digit[3] = {
-//     DigitalOut (DIG_1_PIN),
-//     DigitalOut (DIG_2_PIN),
-//     DigitalOut (DIG_3_PIN)
-//   };
+DigitalOut digit[3] = {
+  DigitalOut (DIG_1_PIN),
+  DigitalOut (DIG_2_PIN),
+  DigitalOut (DIG_3_PIN)
+};
 
 
 int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
@@ -66,9 +66,9 @@ public:
   int* exchange_NUMtoARY(int element);
   void input_inteder_ary();
   void output_console();
-  // void output_digit(int out_digit[SEGMENT_NUM]);    
-  // void digits_init();
-  // void output_sevseg(int output_array[WIDTH][SEGMENT_NUM]);
+  void output_digit(int out_digit[SEGMENT_NUM]);    
+  void digits_init();
+  void output_sevseg();
 };
 
 double powpow(int a, int b);
@@ -76,17 +76,18 @@ double get_Temperature(void);
 
 int main(void){
 
-  double data = get_Temperature();
+  double data;
   sevseg_LED tmp;
-  
-  tmp.set_number(data);
-  tmp.set_head_tale(1);
-  tmp.split_Numerical_Pos();
-  tmp.input_inteder_ary();
-  tmp.output_console();
-  //  tmp.output_sevseg();
-  
-  return 0;
+
+  while (1){
+    data = get_Temperature();
+    tmp.set_number(data);
+    tmp.set_head_tale(1);
+    tmp.split_Numerical_Pos();
+    tmp.input_inteder_ary();
+    tmp.output_console();
+    //  tmp.output_sevseg();
+  }
 }
 
 double get_Temperature(void){
@@ -117,9 +118,9 @@ int* sevseg_LED::exchange_NUMtoARY(int element){
 }
 
 void sevseg_LED::split_Numerical_Pos(){
-  int j, k = 0;
+  int i, j, k = 0;
   
-  for (int i = head; i > tale-1; i--){ 
+  for (i = head; i > tale-1; i--){ 
     for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
     splited_num[k++] = j;
   }
@@ -138,19 +139,20 @@ void sevseg_LED::output_console(){
   }  
 }
 
-// void sevseg_LED::output_digit(int out_digit[SEGMENT_NUM]){
-//   for (int i = 0; i < SEGMENT_NUM; i++)
-//     segment[i] = out_digit[i];  
-// }
+void sevseg_LED::digits_init(){
+  for (int i = 0; i < WIDTH; i++)digit[i] = 1;
+}
 
-// void sevseg_LED::digits_init(){
-//   for (int i = 0; i < WIDTH; i++)digit[i] = 1;
-// }
+void sevseg_LED::output_sevseg(){ 
+  digits_init();
+  for (int i = 0; i < WIDTH; i++){
+    digit[i] = 0;
+    output_digit(output_array[i]);
+    wait(0.01);
+  }
+}
 
-// void sevseg_LED::output_sevseg(){ 
-//   digits_init();
-//   for (int i = 0; i < WIDTH; i++){
-//     digit[i] = 0;
-//     output_digit(output_array[i]);
-//   }
-// }
+void sevseg_LED::output_digit(int out_digit[SEGMENT_NUM]){
+  for (int i = 0; i < SEGMENT_NUM; i++)
+    segment[i] = out_digit[i];  
+}

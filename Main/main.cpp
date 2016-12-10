@@ -67,8 +67,6 @@ public:
   // void output_sevseg(int output_array[WIDTH][SEGMENT_NUM]);
 };
 
-double powpow(int a, int b);
-
 int main(void){
 
   sevseg_LED tmp;
@@ -78,9 +76,17 @@ int main(void){
   tmp.split_Numerical_Pos();
   tmp.input_inteder_ary();
   tmp.output_console();
-  // tmp.output_sevseg();
+  //  tmp.output_sevseg();
   
   return 0;
+}
+
+double powpow(int a, int b){
+  double dest = 1;
+  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
+  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
+  
+  return dest;
 }
 
 void sevseg_LED::set_head_tale(int input_head){ // head < tale　-> Err!!
@@ -94,14 +100,6 @@ void sevseg_LED::set_number(double num){
 
 int* sevseg_LED::exchange_NUMtoARY(int element){
   return sevseg_ary[element];
-}
-
-double powpow(int a, int b){
-  double dest = 1;
-  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
-  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
-  
-  return dest;
 }
 
 void sevseg_LED::split_Numerical_Pos(){

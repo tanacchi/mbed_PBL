@@ -50,27 +50,27 @@ Name | Description
 `void output_7seg(int *src)` | ON/OFFの並び(配列)を受け取って 7セグメントLEDに出力(1桁だけ)  
 
 ***
-12/10 更新分
+## 12/10 更新分
 
-7セグメントLEDのマニュアルが固まってきました
-ざっと下にまとめときます
-\* *斜体になってる箇所*は必要に応じて変更する必要があるところです
+7セグメントLEDのマニュアルが固まってきましたのでざっと下にまとめときます  
+**variable**, **data**, **header**は必要に応じて変更する必要があるところです
 
-1. `sevseg_LED *variable*;`  
+1. `sevseg_LED variable;`  
    出力するデータごとに~~sevseg_LED型の~~変数を宣言します  
    Jさんの場合は  
    `sevseg_LED hour, sec;`とでもして  
    時・分についてそれぞれ宣言するのが良いでしょう  
-2. `*variable*.set_number(*data*);`  
-   *data*には出力する数値が入ります  
-3. `*variable*.set_head_tale(*header*);`  
-   *header*には「数値が10の何乗代のデータか」を入れてください  
+2. `variable.set_number(data);`  
+   **data**には出力する数値が入ります  
+3. `variable.set_head_tale(header);`  
+   **header**には「数値が10の何乗代のデータか」を入れてください  
    例えば100~999のデータを出力するときは 2  
    0.1~0.9のときは -1 を*header*のところに入れてください  
-4. `*variable*.split_Numerical_Pos();`  
-5. `*variable*.input_inteder_ary();`  
-6. `*variable*.output_sevseg();`  
-   `*variable*.output_console();`はテスト用  
- 
+4. `variable.split_Numerical_Pos();`  
+5. `variable.input_inteder_ary();`  
+6. `variable.output_sevseg();`  
+   `variable.output_console();`<-テスト用  
+
+あと変更するとしたら`#define`のところの数字かな
 ***
 質問とかあったらIssueのところなんかで受け付けてます〜 (2回目)

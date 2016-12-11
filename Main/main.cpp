@@ -59,8 +59,8 @@ class sevseg_LED{
   int splited_num[WIDTH];
   int output_array[WIDTH][SEGMENT_NUM]; 
 public:
+  sevseg_LED(int head);
   void set_number(double num);
-  void set_head(int head);
   void split_Numerical_Pos();
   void input_inteder_ary();
   void output_console();
@@ -75,12 +75,11 @@ void output_digit(int out_digit[SEGMENT_NUM]);
  
 int main(void){
   double data;
-  sevseg_LED tmp;
+  sevseg_LED tmp(1);
 
   while (1){
     data = get_Temperature();
     tmp.set_number(data);
-    tmp.set_head(1);
     tmp.split_Numerical_Pos();
     input_inteder_ary();
     tmp.output_console();
@@ -115,18 +114,17 @@ void output_digit(int out_digit[SEGMENT_NUM]){
     segment[i] = out_digit[i];  
 }
 
-void sevseg_LED::set_number(double num){
-  input_number = num;
-}
-
-void sevseg_LED::set_head(int input_head){ // head < tale　-> Err!!
+void sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   head = input_head;
   tale = head - WIDTH;
 }
 
+void sevseg_LED::set_number(double num){
+  input_number = num;
+}
+
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
-  
   for (i = head; i > tale-1; i--){ 
     for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
     splited_num[k++] = j;

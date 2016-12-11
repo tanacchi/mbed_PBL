@@ -22,7 +22,7 @@
 #define DIG_2_PIN p22
 #define DIG_3_PIN p23
 
-#define WIDTH 4
+#define WIDTH 5
 
 // DigitalOut segment[7] = {
 //   DigitalOut (SEGMENT_A),
@@ -39,7 +39,6 @@
 //   DigitalOut (DIG_2_PIN),
 //   DigitalOut (DIG_3_PIN)
 // };
-
 
 int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
   {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
@@ -61,34 +60,31 @@ class sevseg_LED{
   int output_array[WIDTH][SEGMENT_NUM]; 
 public:
   void set_number(double num);
-  void set_head_tale(int head);
+  void set_head(int head);
   void split_Numerical_Pos();
-  int* exchange_NUMtoARY(int element);
   void input_inteder_ary();
   void output_console();
-  void output_digit(int out_digit[SEGMENT_NUM]);    
-  void digits_init();
-  void output_sevseg();
+  // void output_sevseg();
 };
 
 double powpow(int a, int b);
 double get_Temperature(void);
-
+void digits_init();
+int* exchange_NUMtoARY(int element);
+// void output_digit(int out_digit[SEGMENT_NUM]);    
+ 
 int main(void){
-
-  double data;
+  double data = 1111.1;
   sevseg_LED tmp;
 
   // while (1){
     // data = get_Temperature();
-    //tmp.set_number(data);
-    //tmp.set_head_tale(1);
-  tmp.set_number(411.32);
-  tmp.set_head_tale(2);
-  tmp.split_Numerical_Pos();
-  tmp.input_inteder_ary();
-  tmp.output_console();
-    // tmp.output_sevseg();
+    tmp.set_number(data);
+    tmp.set_head(3);
+    tmp.split_Numerical_Pos();
+    tmp.input_inteder_ary();
+    tmp.output_console();
+    //  tmp.output_sevseg();
   // }
 }
 
@@ -106,22 +102,33 @@ double powpow(int a, int b){
   return dest;
 }
 
-void sevseg_LED::set_head_tale(int input_head){ // head < tale　-> Err!!
-  head = input_head;
-  tale = head - WIDTH;
+int* exchange_NUMtoARY(int element){
+  return sevseg_ary[element];
 }
+
+// void digits_init(){
+//   for (int i = 0; i < WIDTH; i++)digit[i] = 1;
+// }
+
+// void output_digit(int out_digit[SEGMENT_NUM]){
+//   for (int i = 0; i < SEGMENT_NUM; i++)
+//     segment[i] = out_digit[i];  
+// }
 
 void sevseg_LED::set_number(double num){
   input_number = num;
 }
 
-int* sevseg_LED::exchange_NUMtoARY(int element){
-  return sevseg_ary[element];
+void sevseg_LED::set_head(int input_head){ // head < tale　-> Err!!
+  head = input_head;
+  tale = head - WIDTH;
 }
 
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
   
+  input_number+=0.05;
+
   for (i = head; i > tale-1; i--){ 
     for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
     splited_num[k++] = j;
@@ -141,10 +148,6 @@ void sevseg_LED::output_console(){
   }  
 }
 
-// void sevseg_LED::digits_init(){
-//   for (int i = 0; i < WIDTH; i++)digit[i] = 1;
-// }
-
 // void sevseg_LED::output_sevseg(){ 
 //   digits_init();
 //   for (int i = 0; i < WIDTH; i++){
@@ -152,9 +155,4 @@ void sevseg_LED::output_console(){
 //     output_digit(output_array[i]);
 //     wait(0.01);
 //   }
-// }
-
-// void sevseg_LED::output_digit(int out_digit[SEGMENT_NUM]){
-//   for (int i = 0; i < SEGMENT_NUM; i++)
-//     segment[i] = out_digit[i];  
 // }

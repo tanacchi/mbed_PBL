@@ -1,5 +1,4 @@
 #include "mbed.h"
-#include <iostream>
 
 #define MBED_VOLTAGE 3.3
 
@@ -72,26 +71,56 @@ double get_Temperature(void);
 void digits_init();
 int* exchange_NUMtoARY(int element);
 void output_digit(int out_digit[SEGMENT_NUM]);    
- 
+void Thermometer();
+void Stop_watch();
+double minute_counter();
+
 int main(void){
+  Stop_watch();
+  
+  return 0;
+}
+
+void Thermometer(){
+
   double data;
   sevseg_LED tmp(1);
 
   while (1){
-    data = get_Temperature();
+    // data = get_Temperature();
     tmp.set_number(data);
     tmp.split_Numerical_Pos();
-    input_inteder_ary();
-    tmp.output_console();
-    //  tmp.output_sevseg();
+    tmp.input_inteder_ary();
+    tmp.output_sevseg();
   }
 }
 
-double get_Temperature(void){
-  AnalogIn mysensor(TMP_SENSOR_PIN);
-  double replyed_vol  = mysensor * MBED_VOLTAGE;
-  return replyed_vol * 100;
+void Stop_watch(){
+  
+  double data;
+  sevseg_LED time(1);
+  
+  while (1){
+    data = minute_counter();
+    time.set_number(data);
+    time.split_Numerical_Pos();
+    time.input_inteder_ary();
+    time.output_sevseg();
+  }
 }
+
+double minute_counter(){
+  static double milinum;
+  milinum += 0.1;
+  if (milinum > 999) milinum = 0;
+  return milinum / 10;
+}
+
+// double get_Temperature(void){
+//   AnalogIn mysensor(TMP_SENSOR_PIN);
+//   double replyed_vol  = mysensor * MBED_VOLTAGE;
+//   return replyed_vol * 100;
+// }
 
 double powpow(int a, int b){
   double dest = 1;
@@ -114,7 +143,7 @@ void output_digit(int out_digit[SEGMENT_NUM]){
     segment[i] = out_digit[i];  
 }
 
-void sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
+sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   head = input_head;
   tale = head - WIDTH;
 }
@@ -137,18 +166,11 @@ void sevseg_LED::input_inteder_ary(){
       output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
 }
 
-void sevseg_LED::output_console(){
-  for (int i = 0; i < WIDTH; i++){
-    for (int j = 0; j < SEGMENT_NUM; j++) std::cout << output_array[i][j]) << ' ';
-    putchar('\n');
-  }  
-}
-
 void sevseg_LED::output_sevseg(){ 
-  digits_init();
-  for (int i = 0; i < WIDTH; i++){
-    digit[i] = 0;
-    output_digit(output_array[i]);
-    wait(0.01);
-  }
+   for (int i = 0; i < WIDTH; i++){
+     digits_init();
+     digit[i] = 0;
+     output_digit(output_array[i]);
+     wait(0.001);
+   }
 }

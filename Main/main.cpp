@@ -74,11 +74,10 @@ void output_digit(int out_digit[SEGMENT_NUM]);
 void Thermometer();
 void Stop_watch();
 double minute_counter();
-void err_message();
+void err_message(){
 
 int main(void){
-  //  Stop_watch();
-  err_message();
+  Stop_watch();
   return 0;
 }
 
@@ -112,8 +111,8 @@ void Stop_watch(){
 
 double minute_counter(){
   static double milinum;
-  milinum += 0.1;
-  if (milinum > 999) milinum = 0;
+  if (milinum < 1000) milinum += 0.1;
+  else err_message();
   return milinum / 10;
 }
 

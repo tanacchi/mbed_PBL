@@ -1,5 +1,5 @@
 #include "mbed.h"
-#include <stdio.h>
+#include <iostream>
 
 #define MBED_VOLTAGE 3.3
 
@@ -106,7 +106,7 @@ int* exchange_NUMtoARY(int element){
 }
 
 void digits_init(){
-  for (int i = 0; i < WIDTH; i++)digit[i] = 1;
+  for (int i = 0; i < WIDTH; i++) digit[i] = 1;
 }
 
 void output_digit(int out_digit[SEGMENT_NUM]){
@@ -139,7 +139,7 @@ void sevseg_LED::input_inteder_ary(){
 
 void sevseg_LED::output_console(){
   for (int i = 0; i < WIDTH; i++){
-    for (int j = 0; j < SEGMENT_NUM; j++) printf("%d ", output_array[i][j]);
+    for (int j = 0; j < SEGMENT_NUM; j++) std::cout << output_array[i][j]) << ' ';
     putchar('\n');
   }  
 }

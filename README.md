@@ -1,6 +1,6 @@
 # mbed_PBL
 
-## 12/10 更新しました(下の方に追記)
+## 12/12 更新しました(下の方に追記)
 
 情報ＰＢＬの課題に取り組む用  
 
@@ -20,7 +20,7 @@ Gグループの作品はこいつの扱いが肝になりそうです。
 いずれにせよ7セグメントLEDを使うので「数字」→「7セグメントLEDに出力」の流れをざっくり説明しときます  
 
 1. 数字を桁ごとに分割(上から3桁)  
-2. あらかじめ用意しておいた「数字ごとに対応するa~gのON/OFFの並び」をそれぞれの位の数字に当てはめる  
+2. 「数字ごとに対応するa~gのON/OFFの並び」をそれぞれの位の数字に当てはめる  
 3. 「1番大きい位のa」~「1番小さい位のg」までのON/OFFを順番にAnalogOutに代入  
 
 これだけで 一応数字は表示されます(小数点とか10の位が0の時とかはまた後で考えます)  
@@ -50,28 +50,26 @@ Name | Description
 `void output_7seg(int *src)` | ON/OFFの並び(配列)を受け取って 7セグメントLEDに出力(1桁だけ)  
 
 ***
-## 12/10 更新分
+## 12/12更新分
 
 7セグメントLEDのマニュアルが固まってきましたのでざっと下にまとめときます  
 **variable**(変数), **data**(数値), **header**(先頭の桁)は必要に応じて変更する必要があるところです
 
-1. `sevseg_LED variable;`  
-   出力するデータごとに~~sevseg_LED型の~~変数(**variable**)を宣言します  
-   Jさんの場合は  
-   `sevseg_LED hour, sec;`とでもして  
-   時・分についてそれぞれ宣言するのが良いでしょう  
-2. `variable.set_number(data);`  
-   **data**には出力する数値が入ります  
-3. `variable.set_head_tale(header);`  
+1. `sevseg_LED variable(header);`  
+   出力するデータごとに変数(**variable**)を宣言します  
    **header**には「数値が10の何乗代のデータか」を入れてください  
    例えば100~999のデータを出力するときは 2  
-   0.1~0.9のときは -1 を*header*のところに入れてください  
-4. `variable.split_Numerical_Pos();`  
-5. `variable.input_inteder_ary();`  
-6. `variable.output_sevseg();`  
+   0.1~0.9のときは -1 を*header*のところに入れてください 
+   Jさんの場合は  
+   `sevseg_LED time `とか  
+2. `variable.set_number(data);`  
+   **data**には出力する数値が入ります  
+3. `variable.split_Numerical_Pos();`  
+4. `variable.input_inteder_ary();`  
+5. `variable.output_sevseg();`  
    `variable.output_console();`<-テスト用
 
-上の1~6を無限ループさせたらLEDに出力できるようになってます
+上の1~5を無限ループさせたらLEDに出力できるようになってます
 
 あと変更するとしたら`#define`のところの数字ですかね
 

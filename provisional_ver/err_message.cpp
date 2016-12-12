@@ -23,6 +23,6 @@ void err_message(){
   for (int i = 0; i < WIDTH; i++){
     digit[i] = 0;
     output_digit(error_array[i]);
-    wait(0.01);
+    wait(0.001);
   }
 }

@@ -74,10 +74,11 @@ void output_digit(int out_digit[SEGMENT_NUM]);
 void Thermometer();
 void Stop_watch();
 double minute_counter();
+void err_message();
 
 int main(void){
-  Stop_watch();
-  
+  //  Stop_watch();
+  err_message();
   return 0;
 }
 
@@ -121,6 +122,23 @@ double minute_counter(){
 //   double replyed_vol  = mysensor * MBED_VOLTAGE;
 //   return replyed_vol * 100;
 // }
+
+void err_message(){
+  int error_array[3][7] = {
+    {ON,  OFF, OFF, ON,  ON, ON,  ON},
+    {OFF, OFF, OFF, OFF, ON, OFF, ON},
+    {OFF, OFF, OFF, OFF, ON, OFF, ON}
+  };
+  
+  while (1){
+    for (int i = 0; i < WIDTH; i++){
+      digits_init();
+      digit[i] = 0;
+      output_digit(error_array[i]);
+      wait(0.001);
+    }
+  }
+}
 
 double powpow(int a, int b){
   double dest = 1;

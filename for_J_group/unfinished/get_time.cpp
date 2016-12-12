@@ -8,8 +8,8 @@ int main(void){
   
   t_st = localtime(&timer);
   
-  printf("Month:%d\n", t_st->tm_mon+1);
-  printf("Day:%d\n", t_st->tm_mday);
+  printf("Month:%d\n", t_st->tm_hour);
+  printf("Day:%d\n", t_st->tm_min);
   
   return 0;
 }

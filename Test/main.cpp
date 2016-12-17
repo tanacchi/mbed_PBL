@@ -97,7 +97,7 @@ int main(){
 int starter_switch(){
   int mode = 0;
 
-  for (int i = 0; i < 10^5; i++)
+  for (int i = 0; i < powpow(10, 9); i++)
     if (mode = mode_reader() != 0) return mode;
 
   return mode;
@@ -147,11 +147,10 @@ double get_Temperature(){
 
 double tmp_stopper(){
   static double stock;
-  static int i - 1;
-  if (i > 10^6) i = 0;
+  static int i;
+  if (i > powpow(10, 5)) i = 0;
   //  return (i++ == 0) ? stock : stock = get_Temperature();
-  i++;
-  if (i == 0) return stock = get_Temperature();
+  if (++i) return stock = get_Temperature();
   else return stock;
 }
 

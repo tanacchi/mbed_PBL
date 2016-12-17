@@ -16,8 +16,7 @@ int starter_switch(){
 }
 
 int switch_reader(int ch){
-  if (tact_switch[ch] == 1) return 1;
-  else return 0;
+  return tact_switch[ch];
 }
 
 int mode_reader(){

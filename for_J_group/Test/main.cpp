@@ -48,12 +48,12 @@ DigitalOut digit[DIGITS_NUM] = {
 // ------------------------- 7 segment LED class -------------------------------
 class sevseg_LED{
   int head, tale;
-  double input_number;
+  int input_number;
   int splited_num[SEVSEG_WIDTH];
   int output_array[SEVSEG_WIDTH][SEGMENT_NUM]; 
 public:
   sevseg_LED(int head);
-  void set_number(double num);
+  void set_number(int num);
   void split_Numerical_Pos();
   void input_inteder_ary();
   void output_console();
@@ -61,7 +61,7 @@ public:
 };
 
 // ------------------------- Function prototype --------------------------------
-double powpow(int a, int b);
+int powpow(int a, int b);
 void digits_init();
 int* exchange_NUMtoARY(int element);
 void output_digit(int out_digit[SEGMENT_NUM]);    
@@ -78,7 +78,7 @@ int main(){
 
 // -------------------------- The Clock ----------------------------------------
 void sevseg_Clock(){
-  double data;
+  int data;
   sevseg_LED time(3);
   
   while (1){
@@ -101,6 +101,7 @@ int get_time(){
 
   return hour*100 + minute;
 }
+
 // -------------------------- Stop_watch ---------------------------------------
 void Stop_watch(){
   double data;
@@ -129,13 +130,12 @@ sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   tale = head - SEVSEG_WIDTH;
 }
 
-void sevseg_LED::set_number(double num){
+void sevseg_LED::set_number(int num){
   input_number = num;
 }
 
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
-    input_number += 5 * 10^tale;
   for (i = head; i > tale; i--){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
     splited_num[k++] = j;
@@ -158,10 +158,10 @@ void sevseg_LED::output_sevseg(){
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
-double powpow(int a, int b){
-  double dest = 1;
-  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
-  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
+int powpow(int a, int b){
+  int dest = 1;
+  if (b > 0) for (int i = 0; i < b; i++) dest *= a;
+  if (b < 0) for (int i = 0; i > b; i--) dest /= a;
   
   return dest;
 }

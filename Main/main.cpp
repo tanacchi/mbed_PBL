@@ -1,10 +1,12 @@
 #include "mbed.h"
 
+// ------------------------- Definition ----------------------------------------
 #define MBED_VOLTAGE 3.3
 
 #define ON 1
 #define OFF 0
 #define SEGMENT_NUM 7
+#define DIGITS_NUM 3
 #define NUM_PATTERN 10
 
 #define TMP_SENSOR_PIN p20
@@ -16,6 +18,7 @@
 #define SEGMENT_E p14
 #define SEGMENT_F p15
 #define SEGMENT_G p16
+#define SEGMENT_POINT p17
 
 #define DIG_1_PIN p21
 #define DIG_2_PIN p22
@@ -23,7 +26,8 @@
 
 #define WIDTH 3
 
-DigitalOut segment[7] = {
+// ------------------------- Global variable -----------------------------------
+DigitalOut segment[SEGMENT_NUM] = {
   DigitalOut (SEGMENT_A),
   DigitalOut (SEGMENT_B),
   DigitalOut (SEGMENT_C),
@@ -33,23 +37,10 @@ DigitalOut segment[7] = {
   DigitalOut (SEGMENT_G)
 };
 
-DigitalOut digit[3] = {
+DigitalOut digit[DIGITS_NUM] = {
   DigitalOut (DIG_1_PIN),
   DigitalOut (DIG_2_PIN),
   DigitalOut (DIG_3_PIN)
-};
-
-int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
-  {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
-  {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
-  {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
-  {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
-  {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
-  {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
-  {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
-  {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
-  {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
-  {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
 };
 
 // ------------------------- 7 segment LED class -------------------------------
@@ -77,6 +68,7 @@ void Thermometer();
 void Stop_watch();
 double minute_counter();
 double average_Temperature();
+double tmp_stopper();
 
 // ------------------------- Main function -------------------------------------
 int main(){
@@ -88,10 +80,10 @@ int main(){
 // -------------------------- Thermometer --------------------------------------
 void Thermometer(){
   double data;
-  sevseg_LED tmp(2);
+  sevseg_LED tmp(1);
 
   while (1){
-    data = get_Temperature();
+    data = tmp_stopper();
     tmp.set_number(data);
     tmp.split_Numerical_Pos();
     tmp.input_inteder_ary();
@@ -101,8 +93,17 @@ void Thermometer(){
 
 double get_Temperature(){
   AnalogIn mysensor(TMP_SENSOR_PIN);
-  double replyed_vol  = mysensor * MBED_VOLTAGE;
+  double replyed_vol = mysensor * MBED_VOLTAGE;
   return replyed_vol * 100;
+}
+
+double tmp_stopper(){
+  static double stock;
+  static int i;
+  if (i > 10^5) i = 0;
+  //  return (i++ == 0) ? stock : stock = get_Temperature();
+  if (i++ == 0) return stock = get_Temperature();
+  else return stock;
 }
 
 // -------------------------- Stop_watch ---------------------------------------
@@ -138,7 +139,8 @@ void sevseg_LED::set_number(double num){
 
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
-  for (i = head; i > tale-1; i--){ 
+    input_number += 5 * 10^tale;
+  for (i = head; i > tale; i--){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
     splited_num[k++] = j;
   }
@@ -169,6 +171,19 @@ double powpow(int a, int b){
 }
 
 int* exchange_NUMtoARY(int element){
+  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+    {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
+    {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
+    {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
+    {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
+    {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
+    {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
+    {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
+    {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
+    {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
+    {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
+  };
+
   return sevseg_ary[element];
 }
 

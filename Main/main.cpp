@@ -99,10 +99,11 @@ double get_Temperature(){
 
 double tmp_stopper(){
   static double stock;
-  static int i;
+  static int i - 1;
   if (i > 10^5) i = 0;
   //  return (i++ == 0) ? stock : stock = get_Temperature();
-  if (i++ == 0) return stock = get_Temperature();
+  i++;
+  if (i == 0) return stock = get_Temperature();
   else return stock;
 }
 
@@ -110,7 +111,7 @@ double tmp_stopper(){
 void Stop_watch(){
   double data;
   sevseg_LED time(1);
-  
+
   while (1){
     data = minute_counter();
     time.set_number(data);
@@ -139,9 +140,9 @@ void sevseg_LED::set_number(double num){
 
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
-    input_number += 5 * 10^tale;
+  input_number += 5 * 10^tale;
   for (i = head; i > tale; i--){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
+    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
     splited_num[k++] = j;
   }
 }
@@ -166,7 +167,6 @@ double powpow(int a, int b){
   double dest = 1;
   if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
   if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
-  
   return dest;
 }
 
@@ -183,7 +183,6 @@ int* exchange_NUMtoARY(int element){
     {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
     {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
   };
-
   return sevseg_ary[element];
 }
 
@@ -203,7 +202,6 @@ void err_message(){
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-
   while (1){
     for (int i = 0; i < WIDTH; i++){
       digits_init();

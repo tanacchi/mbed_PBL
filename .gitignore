@@ -2,7 +2,10 @@
 
 BACK_UP/
 
+!Main/
 !Test/
+!for_J_group/
+!provisional_ver/
 
 Test/*test*
 

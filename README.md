@@ -49,67 +49,76 @@ for_J_group | Jさんとの共同開発用ディレクトリ
 provisional_ver/ | 関数の草案だの試作品だのが入ってます  
 Practice.md | マークダウン記法の練習用。気にしないでくださいな  
 
-***
-以下関数シリーズの説明  
+************************************************************
+以下関数シリーズの説明
 
-* `void Thermometer();`
+## 7セグメントLEDに関するもの
+
+### class sevseg_LEDのメンバ関数
+
+* `sevseg_LED::sevseg_LED(int input_head);`
 
 ```C++
-void Thermometer(){
-  double data;
-  sevseg_LED tmp(1);
+sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
+  head = input_head;
+  tale = head - WIDTH;
+}
+```
 
-  while (1){
-    data = tmp_stopper();
-    tmp.set_number(data);
-    tmp.split_Numerical_Pos();
-    tmp.input_inteder_ary();
-    tmp.output_sevseg();
+* `void sevseg_LED::set_number(double num);`
+
+```C++
+void sevseg_LED::set_number(double num){
+  input_number = num;
+}
+```
+
+* `void sevseg_LED::split_Numerical_Pos();`
+
+```C++
+void sevseg_LED::split_Numerical_Pos(){
+  int i, j, k = 0;
+  input_number += 5 * 10^tale;
+  for (i = head; i > tale; i--){ 
+    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
+    splited_num[k++] = j;
   }
 }
 ```
 
-* `double get_Temperature();`
+* `void sevseg_LED::input_inteder_ary();`
 
 ```C++
-double get_Temperature(){
-  AnalogIn mysensor(TMP_SENSOR_PIN);
-  double replyed_vol = mysensor * MBED_VOLTAGE;
-  return replyed_vol * 100;
+void sevseg_LED::input_inteder_ary(){
+  for (int i = 0; i < WIDTH; i++)
+    for (int j = 0; j < SEGMENT_NUM; j++)
+      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
 }
 ```
-*``
+
+* `void sevseg_LED::output_sevseg();`
 
 ```C++
-double tmp_stopper(){
-  static double stock;
-  static int i - 1;
-  if (i > 10^5) i = 0;
-  //  return (i++ == 0) ? stock : stock = get_Temperature();
-  i++;
-  if (i == 0) return stock = get_Temperature();
-  else return stock;
-}
-```
-```C++
-void Stop_watch(){
-  double data;
-  sevseg_LED time(1);
-
-  while (1){
-    data = minute_counter();
-    time.set_number(data);
-    time.split_Numerical_Pos();
-    time.input_inteder_ary();
-    time.output_sevseg();
+void sevseg_LED::output_sevseg(){ 
+  for (int i = 0; i < WIDTH; i++){
+    digits_init();
+    digit[i] = 0;
+    output_digit(output_array[i]);
+    wait(0.001);
   }
 }
 ```
-```C++
+### その他
 
-```
+## モード選択に関するもの
 
-***
+## 温度計に関するもの
+
+## カウンターに関するもの
+
+## エラーメッセージに関するもの
+
+************************************************************
 ##今後の予定
 
 sevseg_LEDのパッケージ的には既に完成しています  
@@ -117,7 +126,3 @@ sevseg_LEDのパッケージ的には既に完成しています
 
 「ボタン同時押し判定」「カウントアップ・カウントダウン時の数値表示」  
 「現在時刻の取得」なんかが今後の課題ですね  
-
-配列の幅を入力値で変化させられたらいいなとか  
-headとtaleも勝手に判断してくれるようになればいいなとかいうのも  
-ちょっとずつ叶えていくつもり

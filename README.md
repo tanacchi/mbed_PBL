@@ -56,7 +56,7 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 
 ### class sevseg_LEDのメンバ関数
 
-* `sevseg_LED::sevseg_LED(int input_head);`
+* `sevseg_LED tmp(1);`
 ```C++
 sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   head = input_head;
@@ -64,14 +64,14 @@ sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
 }
 ```
 
-* `void sevseg_LED::set_number(double num);`
+* `set_number(data);`
 ```C++
 void sevseg_LED::set_number(double num){
   input_number = num;
 }
 ```
 
-* `void sevseg_LED::split_Numerical_Pos();`
+* `split_Numerical_Pos();`
 ```C++
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
@@ -83,7 +83,7 @@ void sevseg_LED::split_Numerical_Pos(){
 }
 ```
 
-* `void sevseg_LED::input_inteder_ary();`
+* `input_inteder_ary();`
 ```C++
 void sevseg_LED::input_inteder_ary(){
   for (int i = 0; i < WIDTH; i++)
@@ -92,7 +92,7 @@ void sevseg_LED::input_inteder_ary(){
 }
 ```
 
-* `void sevseg_LED::output_sevseg();`
+* `output_sevseg();`
 ```C++
 void sevseg_LED::output_sevseg(){ 
   for (int i = 0; i < WIDTH; i++){
@@ -105,7 +105,7 @@ void sevseg_LED::output_sevseg(){
 ```
 ### その他
 
-* `double powpow(int a, int b);`
+* `powpow(10, i);`
 ```C++
 double powpow(int a, int b){
   double dest = 1;
@@ -115,7 +115,7 @@ double powpow(int a, int b){
 }
 ```
 
-* `int* exchange_NUMtoARY(int element);`
+* `exchange_NUMtoARY(splited_num[i]);`
 ```C++
 int* exchange_NUMtoARY(int element){
   int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
@@ -134,14 +134,14 @@ int* exchange_NUMtoARY(int element){
 }
 ```
 
-* `void digits_init();`
+* `digits_init();`
 ```C++
 void digits_init(){
   for (int i = 0; i < WIDTH; i++) digit[i] = 1;
 }
 ```
 
-* `void output_digit(int out_digit[SEGMENT_NUM]);`
+* `output_digit(output_array);`
 ```C++
 void output_digit(int out_digit[SEGMENT_NUM]){
   for (int i = 0; i < SEGMENT_NUM; i++)
@@ -156,6 +156,25 @@ void output_digit(int out_digit[SEGMENT_NUM]){
 ## カウンターに関するもの
 
 ## エラーメッセージに関するもの
+
+* `err_message();`
+```C++
+void err_message(){
+  int error_array[3][7] = {
+    {ON,  OFF, OFF, ON,  ON, ON,  ON},
+    {OFF, OFF, OFF, OFF, ON, OFF, ON},
+    {OFF, OFF, OFF, OFF, ON, OFF, ON}
+  };
+  while (1){
+    for (int i = 0; i < WIDTH; i++){
+      digits_init();
+      digit[i] = 0;
+      output_digit(error_array[i]);
+      wait(0.001);
+    }
+  }
+}
+```
 
 ************************************************************
 ##今後の予定

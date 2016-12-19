@@ -57,7 +57,6 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 ### class sevseg_LEDのメンバ関数
 
 * `sevseg_LED::sevseg_LED(int input_head);`
-
 ```C++
 sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   head = input_head;
@@ -66,7 +65,6 @@ sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
 ```
 
 * `void sevseg_LED::set_number(double num);`
-
 ```C++
 void sevseg_LED::set_number(double num){
   input_number = num;
@@ -74,7 +72,6 @@ void sevseg_LED::set_number(double num){
 ```
 
 * `void sevseg_LED::split_Numerical_Pos();`
-
 ```C++
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
@@ -87,7 +84,6 @@ void sevseg_LED::split_Numerical_Pos(){
 ```
 
 * `void sevseg_LED::input_inteder_ary();`
-
 ```C++
 void sevseg_LED::input_inteder_ary(){
   for (int i = 0; i < WIDTH; i++)
@@ -97,7 +93,6 @@ void sevseg_LED::input_inteder_ary(){
 ```
 
 * `void sevseg_LED::output_sevseg();`
-
 ```C++
 void sevseg_LED::output_sevseg(){ 
   for (int i = 0; i < WIDTH; i++){
@@ -109,6 +104,50 @@ void sevseg_LED::output_sevseg(){
 }
 ```
 ### その他
+
+* `double powpow(int a, int b);`
+```C++
+double powpow(int a, int b){
+  double dest = 1;
+  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
+  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
+  return dest;
+}
+```
+
+* `int* exchange_NUMtoARY(int element);`
+```C++
+int* exchange_NUMtoARY(int element){
+  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+    {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
+    {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
+    {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
+    {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
+    {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
+    {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
+    {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
+    {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
+    {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
+    {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
+  };
+  return sevseg_ary[element];
+}
+```
+
+* `void digits_init();`
+```C++
+void digits_init(){
+  for (int i = 0; i < WIDTH; i++) digit[i] = 1;
+}
+```
+
+* `void output_digit(int out_digit[SEGMENT_NUM]);`
+```C++
+void output_digit(int out_digit[SEGMENT_NUM]){
+  for (int i = 0; i < SEGMENT_NUM; i++)
+    segment[i] = out_digit[i];  
+}
+```
 
 ## モード選択に関するもの
 

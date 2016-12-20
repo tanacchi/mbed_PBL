@@ -56,7 +56,7 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 
 ### class sevseg_LEDのメンバ関数
 
->* `sevseg_LED tmp(1);`
+>* **`sevseg_LED tmp(1);`**
 >```C++
 >sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
 >  head = input_head;
@@ -64,14 +64,14 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 >}
 >```
 >
->* `set_number(data);`
+>* **`set_number(data);`**
 >```C++
 >void sevseg_LED::set_number(double num){
 >  input_number = num;
 >}
 >```
 >
->* `split_Numerical_Pos();`
+>* **`split_Numerical_Pos();`**
 >```C++
 >void sevseg_LED::split_Numerical_Pos(){
 >  int i, j, k = 0;
@@ -83,7 +83,7 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 >}
 >```
 >
->* `input_inteder_ary();`
+>* **`input_inteder_ary();`**
 >```C++
 >void sevseg_LED::input_inteder_ary(){
 >  for (int i = 0; i < WIDTH; i++)
@@ -92,7 +92,7 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 >}
 >```
 >
->* `output_sevseg();`
+>* **`output_sevseg();`**
 >```C++
 >void sevseg_LED::output_sevseg(){ 
 >  for (int i = 0; i < WIDTH; i++){

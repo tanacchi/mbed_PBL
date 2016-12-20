@@ -230,6 +230,7 @@ int* exchange_NUMtoARY(int element){
     {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
     {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
   };
+  if (element < 0 || 9 < element) err_message();
   return sevseg_ary[element];
 }
 

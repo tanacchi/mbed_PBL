@@ -56,53 +56,53 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 
 ### class sevseg_LEDのメンバ関数
 
-* `sevseg_LED tmp(1);`
-```C++
-sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
-  head = input_head;
-  tale = head - WIDTH;
-}
-```
-
-* `set_number(data);`
-```C++
-void sevseg_LED::set_number(double num){
-  input_number = num;
-}
-```
-
-* `split_Numerical_Pos();`
-```C++
-void sevseg_LED::split_Numerical_Pos(){
-  int i, j, k = 0;
-  input_number += 5 * 10^tale;
-  for (i = head; i > tale; i--){ 
-    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
-    splited_num[k++] = j;
-  }
-}
-```
-
-* `input_inteder_ary();`
-```C++
-void sevseg_LED::input_inteder_ary(){
-  for (int i = 0; i < WIDTH; i++)
-    for (int j = 0; j < SEGMENT_NUM; j++)
-      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
-}
-```
-
-* `output_sevseg();`
-```C++
-void sevseg_LED::output_sevseg(){ 
-  for (int i = 0; i < WIDTH; i++){
-    digits_init();
-    digit[i] = 0;
-    output_digit(output_array[i]);
-    wait(0.001);
-  }
-}
-```
+>* `sevseg_LED tmp(1);`
+>```C++
+>sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
+>  head = input_head;
+>  tale = head - WIDTH;
+>}
+>```
+>
+>* `set_number(data);`
+>```C++
+>void sevseg_LED::set_number(double num){
+>  input_number = num;
+>}
+>```
+>
+>* `split_Numerical_Pos();`
+>```C++
+>void sevseg_LED::split_Numerical_Pos(){
+>  int i, j, k = 0;
+>  input_number += 5 * 10^tale;
+>  for (i = head; i > tale; i--){ 
+>    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
+>    splited_num[k++] = j;
+>  }
+>}
+>```
+>
+>* `input_inteder_ary();`
+>```C++
+>void sevseg_LED::input_inteder_ary(){
+>  for (int i = 0; i < WIDTH; i++)
+>    for (int j = 0; j < SEGMENT_NUM; j++)
+>      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
+>}
+>```
+>
+>* `output_sevseg();`
+>```C++
+>void sevseg_LED::output_sevseg(){ 
+>  for (int i = 0; i < WIDTH; i++){
+>    digits_init();
+>    digit[i] = 0;
+>    output_digit(output_array[i]);
+>    wait(0.001);
+>  }
+>}
+>```
 ### その他
 
 * `powpow(10, i);`

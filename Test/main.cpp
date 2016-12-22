@@ -46,15 +46,17 @@ DigitalOut digit[DIGITS_NUM] = {
   DigitalOut (DIG_3_PIN)
 };
 
+AnalogIn tmp_sensor(TMP_SENSOR_PIN);
+
 // ------------------------- 7 segment LED class -------------------------------
 class sevseg_LED{
   int head, tale;
-  double input_number;
+  double src_number;
   int splited_num[WIDTH];
   int output_array[WIDTH][SEGMENT_NUM]; 
 public:
   sevseg_LED(int head);
-  void set_number(double num);
+  void set_number(double input_num);
   void split_Numerical_Pos();
   void input_inteder_ary();
   void output_console();
@@ -79,50 +81,50 @@ void err_message();
 
 // ------------------------- Main function -------------------------------------
 int main(){
-  int mode = starter_switch();
+  // int mode = starter_switch();
 
-  switch(mode){
-  case 1:
-    Stop_watch();
-    break;
-  case 2:
-    Thermometer();
-    break;
-  default:
-    err_message();
-  }
+  // switch(mode){
+  // case 1:
+  //   Stop_watch();
+  //   break;
+  // case 2:
+  Thermometer();
+  //   break;
+  // default:
+  //   err_message();
+  // }
   return 0;
 }
-//-------------------------------------------------------------
-int starter_switch(){
-  int mode = 0;
+// //-------------------------------------------------------------
+// int starter_switch(){
+//   int mode = 0;
 
-  for (int i = 0; i < powpow(10, 9); i++)
-    if (mode = mode_reader() != 0) return mode;
+//   for (int i = 0; i < powpow(10, 9); i++)
+//     if (mode = mode_reader() != 0) return mode;
 
-  return mode;
-}
+//   return mode;
+// }
 
-int switch_reader(int ch){
-  DigitalIn tact_switch[2] = {
-    DigitalIn (SWITCH_A),
-    DigitalIn (SWITCH_B)
-  };
-  return tact_switch[ch];
-}
+// int switch_reader(int ch){
+//   DigitalIn tact_switch[2] = {
+//     DigitalIn (SWITCH_A),
+//     DigitalIn (SWITCH_B)
+//   };
+//   return tact_switch[ch];
+// }
 
-int mode_reader(){
-  if ((switch_reader[0] == 0) || (switch_reader[1] == 0))
-    return 0;
-  if ((switch_reader[0] == 1) || (switch_reader[1] == 0))
-    return 1;
-  if ((switch_reader[0] == 0) || (switch_reader[1] == 1))
-    return 2;
-  if ((switch_reader[0] == 1) || (switch_reader[1] == 1))
-    return 3;
-}
+// int mode_reader(){
+//   if ((switch_reader[0] == 0) || (switch_reader[1] == 0))
+//     return 0;
+//   if ((switch_reader[0] == 1) || (switch_reader[1] == 0))
+//     return 1;
+//   if ((switch_reader[0] == 0) || (switch_reader[1] == 1))
+//     return 2;
+//   if ((switch_reader[0] == 1) || (switch_reader[1] == 1))
+//     return 3;
+// }
 
-//------------------------------------------------------------
+// //------------------------------------------------------------
 
 
 // -------------------------- Thermometer --------------------------------------
@@ -140,18 +142,18 @@ void Thermometer(){
 }
 
 double get_Temperature(){
-  AnalogIn mysensor(TMP_SENSOR_PIN);
-  double replyed_vol = mysensor * MBED_VOLTAGE;
+  double replyed_vol = tmp_sensor * MBED_VOLTAGE;
   return replyed_vol * 100;
 }
 
-double tmp_stopper(){
+double tmp_stopper(){ // meke shorter!
   static double stock;
-  static int i;
-  if (i > powpow(10, 5)) i = 0;
-  //  return (i++ == 0) ? stock : stock = get_Temperature();
-  if (++i) return stock = get_Temperature();
-  else return stock;
+  static double counter;
+  if (counter > powpow(10, 7)) counter = 0;
+  counter++;
+  if (counter) stock = get_Temperature();
+
+  return stock;
 }
 
 // -------------------------- Stop_watch ---------------------------------------
@@ -181,15 +183,15 @@ sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   tale = head - WIDTH;
 }
 
-void sevseg_LED::set_number(double num){
-  input_number = num;
+void sevseg_LED::set_number(double input_num){
+  src_number = input_num;
 }
 
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
-  input_number += 5 * 10^tale;
+  //src_number += 5 * powpow(10, tale);
   for (i = head; i > tale; i--){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
+    for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
     splited_num[k++] = j;
   }
 }
@@ -218,7 +220,7 @@ double powpow(int a, int b){
 }
 
 int* exchange_NUMtoARY(int element){
-  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+  static int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
     {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
     {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
     {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2

@@ -57,25 +57,30 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 ### class sevseg_LEDのメンバ関数
 
 >* **`sevseg_LED tmp(1);`**
+>> sevseg_LED型の変数を宣言
+>> それと同時に先頭の位を設定
 >```C++
->sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
->  head = input_head;
->  tale = head - WIDTH;
+>sevseg_LED::sevseg_LED(int input_head){ //コンストラクタを定義します
+>  head = input_head;　// 引数(input_header)を先頭の位(head)に代入
+>  tale = head - WIDTH; // (末尾の位) = (先頭の位) - (表示する桁数) 
 >}
 >```
 >
 >* **`set_number(data);`**
+>> 7セグLEDに出力する数値を設定
 >```C++
->void sevseg_LED::set_number(double num){
->  input_number = num;
+>void sevseg_LED::set_number(double input_num){
+>  src_number = num; // src_numberに引数(num)を代入
 >}
 >```
 >
 >* **`split_Numerical_Pos();`**
+>> src_numberの数値を位ごとに分割し、
+>> 配列(splited_num)に格納
 >```C++
 >void sevseg_LED::split_Numerical_Pos(){
 >  int i, j, k = 0;
->  input_number += 5 * 10^tale;
+>  input_number += 5 * powpow(10, tale);
 >  for (i = head; i > tale; i--){ 
 >    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
 >    splited_num[k++] = j;
@@ -106,50 +111,50 @@ Practice.md | マークダウン記法の練習用。気にしないでくださ
 
 ### その他
 
-* `powpow(10, i);`
-```C++
-double powpow(int a, int b){
-  double dest = 1;
-  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
-  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
-  return dest;
-}
-```
-
-* `exchange_NUMtoARY(splited_num[i]);`
-```C++
-int* exchange_NUMtoARY(int element){
-  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
-    {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
-    {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
-    {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
-    {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
-    {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
-    {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
-    {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
-    {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
-    {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
-    {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
-  };
-  if (element < 0 || 9 < element) err_message();
-  return sevseg_ary[element];
-}
-```
-
-* `digits_init();`
-```C++
-void digits_init(){
-  for (int i = 0; i < WIDTH; i++) digit[i] = 1;
-}
-```
-
+>* `powpow(10, i);`
+>```C++
+>double powpow(int a, int b){
+>  double dest = 1;
+>  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
+>  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
+>  return dest;
+>}
+>```
+>
+>* `exchange_NUMtoARY(splited_num[i]);`
+>```C++
+>int* exchange_NUMtoARY(int element){
+>  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+>    {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
+>    {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
+>    {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
+>    {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
+>    {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
+>    {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
+>    {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
+>    {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
+>    {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
+>    {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
+>  };
+>  if (element < 0 || 9 < element) err_message();
+>  return sevseg_ary[element];
+>}
+>```
+>
+>* `digits_init();`
+>```C++
+>void digits_init(){
+>  for (int i = 0; i < WIDTH; i++) digit[i] = 1;
+>}
+>```
+>
 * `output_digit(output_array);`
-```C++
-void output_digit(int out_digit[SEGMENT_NUM]){
-  for (int i = 0; i < SEGMENT_NUM; i++)
-    segment[i] = out_digit[i];  
-}
-```
+>```C++
+>void output_digit(int out_digit[SEGMENT_NUM]){
+>  for (int i = 0; i < SEGMENT_NUM; i++)
+>  segment[i] = out_digit[i];  
+>}
+>```
 
 ## モード選択に関するもの
 

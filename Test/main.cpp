@@ -26,8 +26,8 @@
 
 #define WIDTH 3
 
-#define SWITCH_A p??
-#define SWITCH_B p??
+#define SWITCH_R p18
+#define SWITCH_L p19
 
 // ------------------------- Global variable -----------------------------------
 DigitalOut segment[SEGMENT_NUM] = {
@@ -47,7 +47,6 @@ DigitalOut digit[DIGITS_NUM] = {
 };
 
 AnalogIn tmp_sensor(TMP_SENSOR_PIN);
-
 // ------------------------- 7 segment LED class -------------------------------
 class sevseg_LED{
   int head, tale;
@@ -80,107 +79,52 @@ int starter_switch();
 void err_message();
 
 // ------------------------- Main function -------------------------------------
+// -----------------------------------------------------------------------------
 int main(){
-  // int mode = starter_switch();
+  int mode = starter_switch();
+  
+  switch(mode){
+  case 1:
+    Stop_watch();
+    break;
+  case 2:
+    Thermometer();
+    break;
+  default:
+    err_message();
+  }
+ 
+}  
+int starter_switch(){
+  for (int i = 0; i < powpow(10, 5); i++)
+    if (mode_reader() != 0) return mode_reader();
 
-  // switch(mode){
-  // case 1:
-  //   Stop_watch();
-  //   break;
-  // case 2:
-  Thermometer();
-  //   break;
-  // default:
-  //   err_message();
-  // }
   return 0;
 }
-// //-------------------------------------------------------------
-// int starter_switch(){
-//   int mode = 0;
 
-//   for (int i = 0; i < powpow(10, 9); i++)
-//     if (mode = mode_reader() != 0) return mode;
-
-//   return mode;
-// }
-
-// int switch_reader(int ch){
-//   DigitalIn tact_switch[2] = {
-//     DigitalIn (SWITCH_A),
-//     DigitalIn (SWITCH_B)
-//   };
-//   return tact_switch[ch];
-// }
-
-// int mode_reader(){
-//   if ((switch_reader[0] == 0) || (switch_reader[1] == 0))
-//     return 0;
-//   if ((switch_reader[0] == 1) || (switch_reader[1] == 0))
-//     return 1;
-//   if ((switch_reader[0] == 0) || (switch_reader[1] == 1))
-//     return 2;
-//   if ((switch_reader[0] == 1) || (switch_reader[1] == 1))
-//     return 3;
-// }
-
-// //------------------------------------------------------------
-
-
-// -------------------------- Thermometer --------------------------------------
-void Thermometer(){
-  double data;
-  sevseg_LED tmp(1);
-
-  while (1){
-    data = tmp_stopper();
-    tmp.set_number(data);
-    tmp.split_Numerical_Pos();
-    tmp.input_inteder_ary();
-    tmp.output_sevseg();
-  }
+int switch_reader(int ch){
+  DigitalIn tact_switch[2] = {
+    DigitalIn (SWITCH_R),
+    DigitalIn (SWITCH_L)
+  };
+  return tact_switch[ch];
 }
 
-double get_Temperature(){
-  double replyed_vol = tmp_sensor * MBED_VOLTAGE;
-  return replyed_vol * 100;
+int mode_reader(){
+ if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
+ if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
+ if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
+ if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
 }
-
-double tmp_stopper(){ // meke shorter!
-  static double stock;
-  static double counter;
-  if (counter > powpow(10, 7)) counter = 0;
-  counter++;
-  if (counter) stock = get_Temperature();
-
-  return stock;
-}
-
-// -------------------------- Stop_watch ---------------------------------------
-void Stop_watch(){
-  double data;
-  sevseg_LED time(1);
-
-  while (1){
-    data = minute_counter();
-    time.set_number(data);
-    time.split_Numerical_Pos();
-    time.input_inteder_ary();
-    time.output_sevseg();
-  }
-}
-
-double minute_counter(){
-  static double milinum;
-  if (milinum < 100) milinum += 0.01;
-  else milinum = 0; //err_message();
-  return milinum;
-}
+// -----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // ------------------------- Output 7 segment LED (member function) ------------
 sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
   head = input_head;
   tale = head - WIDTH;
+  for (int i = 0; i < WIDTH; i++)
+    splited_num[i] = 0;
 }
 
 void sevseg_LED::set_number(double input_num){
@@ -210,6 +154,60 @@ void sevseg_LED::output_sevseg(){
     wait(0.001);
   }
 }
+// ---------------------------------------------------------------------
+
+
+// -------------------------- Thermometer --------------------------------------
+void Thermometer(){
+  double data = get_Temperature();
+  sevseg_LED tmp(1);
+
+  while (1){
+    data = tmp_stopper();
+    tmp.set_number(data);
+    tmp.split_Numerical_Pos();
+    tmp.input_inteder_ary();
+    tmp.output_sevseg();
+  }
+}
+
+double get_Temperature(){
+  double replyed_vol = tmp_sensor * MBED_VOLTAGE;
+  return replyed_vol * 100;
+}
+
+double tmp_stopper(){ // meke shorter!
+  static double stock;
+  static int counter;
+  if (counter > powpow(10, 5)) counter = 0;
+  counter++;
+  if (counter) stock = get_Temperature();
+
+  return stock;
+}
+
+// -------------------------- Stop_watch ---------------------------------------
+void Stop_watch(){
+  double data;
+  sevseg_LED time(2);
+
+  while (1){
+    data = minute_counter();
+    time.set_number(data);
+    time.split_Numerical_Pos();
+    time.input_inteder_ary();
+    time.output_sevseg();
+  }
+}
+
+double minute_counter(){
+  static double milinum;
+  if (milinum > 1000) milinum = 0;
+  if (mode_reader() == 0) milinum += 0.1;
+  return milinum;
+}
+
+
 
 // -------------------------- Output 7 segment LED (other function) ------------
 double powpow(int a, int b){
@@ -232,7 +230,7 @@ int* exchange_NUMtoARY(int element){
     {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
     {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
   };
-  if (element < 0 || 9 < element) err_message();
+  //if (element < 0 || 9 < element) err_message();
   return sevseg_ary[element];
 }
 

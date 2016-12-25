@@ -1,4 +1,4 @@
-// ------------------------- Include files -------------------------------------
+// ------------------------- Include files -----------x--------------------------
 #include "mbed.h"
 
 // ------------------------- Definition ----------------------------------------
@@ -81,7 +81,6 @@ void err_message();
 
 // ========================== Test space =======================================
 
-
 // =============================================================================
 
 // ------------------------- Main function -------------------------------------
@@ -127,7 +126,7 @@ void wait_switch_left(){
 // ------------------------- Mode select ---------------------------------------
 int starter_switch(){
   for (int i = 0; i < powpow(10, 5); i++)
-    if (mode_reader() != 0 && mode_reader() != 3) return mode_reader();
+    if (!mode_reader()) return mode_reader(); // <-- 0
 
   return 0;
 }
@@ -138,8 +137,7 @@ int mode_switcher(){
   if (mode_reader() == 3) count++;       
   else count = 0;
 
-  if (count < powpow(10, 3)) return 1;
-  else return 0;
+  return (count < powpow(10, 3)) 1 : 0; // <-- 1
 }
 
 // -------------------------- Thermometer --------------------------------------
@@ -166,7 +164,7 @@ double tmp_stopper(){ // meke shorter!
   static int counter;
   if (counter > powpow(10, 2)) counter = 0;
   counter++;
-  if (counter == 1) stock = get_Temperature();
+  if (counter) stock = get_Temperature(); // <-- 2
 
   return stock;
 }
@@ -202,7 +200,7 @@ int minute_counter(){
 }
 
 // ------------------------- Output 7 segment LED (member function) ------------
-sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
+sevseg_LED::sevseg_LED(int input_head){
   head = input_head;
   tale = head - WIDTH;
   for (int i = 0; i < WIDTH; i++)
@@ -215,8 +213,7 @@ void sevseg_LED::set_number(double input_num){
 
 void sevseg_LED::split_Numerical_Pos(){
   int i, j, k = 0;
-  //src_number += 5 * powpow(10, tale);
-  for (i = head; i > tale; i--){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  for (i = head; i > tale; i--){
     for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
     splited_num[k++] = j;
   }

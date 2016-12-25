@@ -1,3 +1,4 @@
+// ------------------------- Include files -------------------------------------
 #include "mbed.h"
 
 // ------------------------- Definition ----------------------------------------
@@ -69,8 +70,8 @@ void digits_init();
 int* exchange_NUMtoARY(int element);
 void output_digit(int out_digit[SEGMENT_NUM]);    
 void Thermometer();
-void Stop_watch();
-double minute_counter();
+void Counter();
+int minute_counter();
 double average_Temperature();
 double tmp_stopper();
 int mode_reader();
@@ -78,30 +79,31 @@ int switch_reader(int ch);
 int starter_switch();
 void err_message();
 
-// ------------------------- Main function -------------------------------------
-// -----------------------------------------------------------------------------
-int main(){
-  int mode = starter_switch();
-  
-  switch(mode){
-  case 0:
-    Thermometer();
-    break;
-  case 1:
-    Stop_watch();
-    break;
-  default:
-    err_message();
-  }
- 
-}  
-int starter_switch(){
-  for (int i = 0; i < powpow(10, 5); i++)
-    if (mode_reader() != 0) return mode_reader();
+// ========================== Test space =======================================
 
-  return 0;
+
+// =============================================================================
+
+// ------------------------- Main function -------------------------------------
+int main(){
+  
+  while (1){
+    wait_switch_left();
+    
+    switch(starter_switch()){
+    case 0:
+      Thermometer();
+      break;
+    case 1:
+      Counter();
+      break;
+    default:
+      err_message();
+    }
+  }
 }
 
+// ------------------------- About switch --------------------------------------
 int switch_reader(int ch){
   DigitalIn tact_switch[2] = {
     DigitalIn (SWITCH_R),
@@ -111,13 +113,93 @@ int switch_reader(int ch){
 }
 
 int mode_reader(){
- if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
- if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
- if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
- if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
+  if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
+  if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
+  if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
+  if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
 }
-// -----------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+
+void wait_switch_left(){
+  digits_init();
+  while (mode_reader() != 0) ;  
+}
+
+// ------------------------- Mode select ---------------------------------------
+int starter_switch(){
+  for (int i = 0; i < powpow(10, 5); i++)
+    if (mode_reader() != 0 && mode_reader() != 3) return mode_reader();
+
+  return 0;
+}
+
+int mode_switcher(){
+  static unsigned int count;
+
+  if (mode_reader() == 3) count++;       
+  else count = 0;
+
+  if (count < powpow(10, 3)) return 1;
+  else return 0;
+}
+
+// -------------------------- Thermometer --------------------------------------
+void Thermometer(){
+  double data = get_Temperature();
+  sevseg_LED tmp(1);
+
+  while (mode_switcher()){
+    data = tmp_stopper();
+    tmp.set_number(data);
+    tmp.split_Numerical_Pos();
+    tmp.input_inteder_ary();
+    tmp.output_sevseg();
+  }
+}
+
+double get_Temperature(){
+  double replyed_vol = tmp_sensor * MBED_VOLTAGE;
+  return replyed_vol * 100;
+}
+
+double tmp_stopper(){ // meke shorter!
+  static double stock;
+  static int counter;
+  if (counter > powpow(10, 2)) counter = 0;
+  counter++;
+  if (counter == 1) stock = get_Temperature();
+
+  return stock;
+}
+
+// -------------------------- Counter ---------------------------------------
+void Counter(){
+  double data;
+  sevseg_LED time(3);
+
+  while (mode_switcher()){
+    data = minute_counter();
+    time.set_number(data);
+    time.split_Numerical_Pos();
+    time.input_inteder_ary();
+    time.output_sevseg();
+  }
+}
+
+int minute_counter(){
+  static int count;
+  switch (mode_reader()){
+  case 1:
+    count++;
+    break;
+  case 2:
+    count--;
+    break;
+  case 3:
+    count = 0;
+    break;
+  }
+  return count;
+}
 
 // ------------------------- Output 7 segment LED (member function) ------------
 sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
@@ -154,60 +236,6 @@ void sevseg_LED::output_sevseg(){
     wait(0.001);
   }
 }
-// ---------------------------------------------------------------------
-
-
-// -------------------------- Thermometer --------------------------------------
-void Thermometer(){
-  double data = get_Temperature();
-  sevseg_LED tmp(1);
-
-  while (1){
-    data = tmp_stopper();
-    tmp.set_number(data);
-    tmp.split_Numerical_Pos();
-    tmp.input_inteder_ary();
-    tmp.output_sevseg();
-  }
-}
-
-double get_Temperature(){
-  double replyed_vol = tmp_sensor * MBED_VOLTAGE;
-  return replyed_vol * 100;
-}
-
-double tmp_stopper(){ // meke shorter!
-  static double stock;
-  static int counter;
-  if (counter > powpow(10, 2)) counter = 0;
-  counter++;
-  if (counter == 1) stock = get_Temperature();
-
-  return stock;
-}
-
-// -------------------------- Stop_watch ---------------------------------------
-void Stop_watch(){
-  double data;
-  sevseg_LED time(2);
-
-  while (1){
-    data = minute_counter();
-    time.set_number(data);
-    time.split_Numerical_Pos();
-    time.input_inteder_ary();
-    time.output_sevseg();
-  }
-}
-
-double minute_counter(){
-  static double milinum;
-  if (milinum > 1000) milinum = 0;
-  if (mode_reader() == 0) milinum += 0.1;
-  return milinum;
-}
-
-
 
 // -------------------------- Output 7 segment LED (other function) ------------
 double powpow(int a, int b){
@@ -230,7 +258,7 @@ int* exchange_NUMtoARY(int element){
     {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
     {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
   };
-  //if (element < 0 || 9 < element) err_message();
+  if (element < 0 || 9 < element) err_message();
   return sevseg_ary[element];
 }
 
@@ -250,7 +278,7 @@ void err_message(){
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (1){
+  while (mode_switcher()){
     for (int i = 0; i < WIDTH; i++){
       digits_init();
       digit[i] = 0;

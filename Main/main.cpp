@@ -47,8 +47,6 @@ DigitalOut digit[DIGITS_NUM] = {
   DigitalOut (DIG_3_PIN)
 };
 
-AnalogIn tmp_sensor(TMP_SENSOR_PIN);
-
 // ------------------------- 7 segment LED class -------------------------------
 class sevseg_LED {
   int head, tale;
@@ -68,7 +66,7 @@ public:
 double powpow(int a, int b);
 double get_Temperature();
 void digits_init();
-int* exchange_NUMtoARY(int element);
+int* convert_NUMintoARY(int element);
 void output_digit(int out_digit[SEGMENT_NUM]);
 void Thermometer();
 void Counter();
@@ -92,11 +90,10 @@ int count_stopper(int mode) {
 // =============================================================================
 
 // ------------------------- Main function -------------------------------------
-int main() {
-
+int main()
+{
   while (1) {
     wait_switch_left();
-
     switch(starter_switch()) {
     case 0:
       Thermometer();
@@ -137,7 +134,7 @@ int mode_reader() {
 void wait_switch_left() {
   digits_init();
   while (mode_reader() != 0) ;
-  wait(0.5);
+  wait(powpow(10, -1) * 5);
 }
 
 // ------------------------- Mode select ---------------------------------------
@@ -172,6 +169,7 @@ void Thermometer() {
 }
 
 double get_Temperature() {
+  AnalogIn tmp_sensor(TMP_SENSOR_PIN);
   double replyed_vol = tmp_sensor * MBED_VOLTAGE;
   return replyed_vol * 100;
 }
@@ -227,8 +225,7 @@ sevseg_LED::sevseg_LED(int input_head) {
     splited_num[i] = 0;
 }
 
-void sevseg_LED::set_number(double input_num)
-{
+void sevseg_LED::set_number(double input_num) {
   src_number = input_num;
 }
 
@@ -243,7 +240,7 @@ void sevseg_LED::split_Numerical_Pos() {
 void sevseg_LED::input_inteder_ary() {
   for (int i = 0; i < WIDTH; i++)
     for (int j = 0; j < SEGMENT_NUM; j++)
-      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
+      output_array[i][j] = convert_NUMintoARY(splited_num[i])[j];
 }
 
 void sevseg_LED::output_sevseg() {
@@ -251,7 +248,7 @@ void sevseg_LED::output_sevseg() {
     digits_init();
     digit[i] = 0;
     output_digit(output_array[i]);
-    wait(0.001);
+    wait(powpow(10, -3));
   }
 }
 
@@ -263,7 +260,7 @@ double powpow(int a, int b) {
   return dest;
 }
 
-int* exchange_NUMtoARY(int element) {
+int* convert_NUMintoARY(int element) {
   static int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
     {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
     {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
@@ -290,19 +287,18 @@ void output_digit(int out_digit[SEGMENT_NUM]) {
 }
 
 // ------------------------- ERROR message -------------------------------------
-void err_message()
-{
+void err_message() {
   int error_array[3][7] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (mode_switcher()) {
+  while (1) {
     for (int i = 0; i < WIDTH; i++) {
       digits_init();
       digit[i] = 0;
       output_digit(error_array[i]);
-      wait(powpow(10, -7));
+      wait(powpow(10, -3));
     }
   }
 }

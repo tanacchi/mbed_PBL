@@ -1,4 +1,4 @@
-// ------------------------- Include files -----------x--------------------------
+// ------------------------- Include files -------------------------------------
 #include "mbed.h"
 
 // ------------------------- Definition ----------------------------------------
@@ -48,12 +48,13 @@ DigitalOut digit[DIGITS_NUM] = {
 };
 
 AnalogIn tmp_sensor(TMP_SENSOR_PIN);
+
 // ------------------------- 7 segment LED class -------------------------------
-class sevseg_LED{
+class sevseg_LED {
   int head, tale;
   double src_number;
   int splited_num[WIDTH];
-  int output_array[WIDTH][SEGMENT_NUM]; 
+  int output_array[WIDTH][SEGMENT_NUM];
 public:
   sevseg_LED(int head);
   void set_number(double input_num);
@@ -68,7 +69,7 @@ double powpow(int a, int b);
 double get_Temperature();
 void digits_init();
 int* exchange_NUMtoARY(int element);
-void output_digit(int out_digit[SEGMENT_NUM]);    
+void output_digit(int out_digit[SEGMENT_NUM]);
 void Thermometer();
 void Counter();
 int minute_counter();
@@ -78,24 +79,39 @@ int mode_reader();
 int switch_reader(int ch);
 int starter_switch();
 void err_message();
+void wait_switch_left();
+int mode_switcher();
 
 // ========================== Test space =======================================
-
+int count_stopper(int mode) {
+  static int previous_mode;
+  int judge = previous_mode - mode;
+  previous_mode = mode;
+  return judge;
+}
 // =============================================================================
 
 // ------------------------- Main function -------------------------------------
-int main(){
-  
-  while (1){
+int main() {
+
+  while (1) {
     wait_switch_left();
-    
-    switch(starter_switch()){
+
+    switch(starter_switch()) {
     case 0:
       Thermometer();
       break;
     case 1:
       Counter();
       break;
+    case 2:
+      sevseg_LED sw(0);
+      while (mode_switcher()) {
+        sw.set_number(mode_reader());
+        sw.split_Numerical_Pos();
+        sw.input_inteder_ary();
+        sw.output_sevseg();
+      }
     default:
       err_message();
     }
@@ -103,7 +119,7 @@ int main(){
 }
 
 // ------------------------- About switch --------------------------------------
-int switch_reader(int ch){
+int switch_reader(int ch) {
   DigitalIn tact_switch[2] = {
     DigitalIn (SWITCH_R),
     DigitalIn (SWITCH_L)
@@ -111,41 +127,42 @@ int switch_reader(int ch){
   return tact_switch[ch];
 }
 
-int mode_reader(){
+int mode_reader() {
   if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
   if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
   if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
   if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
 }
 
-void wait_switch_left(){
+void wait_switch_left() {
   digits_init();
-  while (mode_reader() != 0) ;  
+  while (mode_reader() != 0) ;
+  wait(0.5);
 }
 
 // ------------------------- Mode select ---------------------------------------
-int starter_switch(){
+int starter_switch() {
   for (int i = 0; i < powpow(10, 5); i++)
-    if (!mode_reader()) return mode_reader(); // <-- 0
+    if (mode_reader() != 0) return mode_reader(); // <-- 0
 
   return 0;
 }
 
-int mode_switcher(){
+int mode_switcher() {
   static unsigned int count;
 
-  if (mode_reader() == 3) count++;       
+  if (mode_reader() == 3) count++;
   else count = 0;
 
-  return (count < powpow(10, 3)) 1 : 0; // <-- 1
+  return (count < powpow(10, 3)) ? 1 : 0;
 }
 
 // -------------------------- Thermometer --------------------------------------
-void Thermometer(){
+void Thermometer() {
   double data = get_Temperature();
   sevseg_LED tmp(1);
 
-  while (mode_switcher()){
+  while (mode_switcher()) {
     data = tmp_stopper();
     tmp.set_number(data);
     tmp.split_Numerical_Pos();
@@ -154,27 +171,26 @@ void Thermometer(){
   }
 }
 
-double get_Temperature(){
+double get_Temperature() {
   double replyed_vol = tmp_sensor * MBED_VOLTAGE;
   return replyed_vol * 100;
 }
 
-double tmp_stopper(){ // meke shorter!
+double tmp_stopper() { // meke shorter!
   static double stock;
   static int counter;
-  if (counter > powpow(10, 2)) counter = 0;
-  counter++;
-  if (counter) stock = get_Temperature(); // <-- 2
+  if (counter > 5 * powpow(10, 2)) counter = 0;
+  if (++counter == 1) stock = get_Temperature();
 
   return stock;
 }
 
 // -------------------------- Counter ---------------------------------------
-void Counter(){
+void Counter() {
   double data;
   sevseg_LED time(3);
 
-  while (mode_switcher()){
+  while (mode_switcher()) {
     data = minute_counter();
     time.set_number(data);
     time.split_Numerical_Pos();
@@ -183,50 +199,55 @@ void Counter(){
   }
 }
 
-int minute_counter(){
+int minute_counter() {
   static int count;
-  switch (mode_reader()){
-  case 1:
-    count++;
-    break;
-  case 2:
-    count--;
-    break;
-  case 3:
-    count = 0;
-    break;
+  if (count_stopper(mode_reader()) != 0) {
+    switch (mode_reader()) {
+    case 1:
+      count++;
+      break;
+    case 2:
+      if (count > 0) count--;
+      break;
+    case 3:
+      count = 0;
+      break;
+    default :
+      err_message();    
+    }
   }
   return count;
 }
 
 // ------------------------- Output 7 segment LED (member function) ------------
-sevseg_LED::sevseg_LED(int input_head){
+sevseg_LED::sevseg_LED(int input_head) {
   head = input_head;
   tale = head - WIDTH;
   for (int i = 0; i < WIDTH; i++)
     splited_num[i] = 0;
 }
 
-void sevseg_LED::set_number(double input_num){
+void sevseg_LED::set_number(double input_num)
+{
   src_number = input_num;
 }
 
-void sevseg_LED::split_Numerical_Pos(){
+void sevseg_LED::split_Numerical_Pos() {
   int i, j, k = 0;
-  for (i = head; i > tale; i--){
+  for (i = head; i > tale; i--) {
     for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
     splited_num[k++] = j;
   }
 }
 
-void sevseg_LED::input_inteder_ary(){
+void sevseg_LED::input_inteder_ary() {
   for (int i = 0; i < WIDTH; i++)
     for (int j = 0; j < SEGMENT_NUM; j++)
       output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
 }
 
-void sevseg_LED::output_sevseg(){ 
-  for (int i = 0; i < WIDTH; i++){
+void sevseg_LED::output_sevseg() {
+  for (int i = 0; i < WIDTH; i++) {
     digits_init();
     digit[i] = 0;
     output_digit(output_array[i]);
@@ -235,14 +256,14 @@ void sevseg_LED::output_sevseg(){
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
-double powpow(int a, int b){
+double powpow(int a, int b) {
   double dest = 1;
   if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
   if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
   return dest;
 }
 
-int* exchange_NUMtoARY(int element){
+int* exchange_NUMtoARY(int element) {
   static int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
     {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
     {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
@@ -259,28 +280,29 @@ int* exchange_NUMtoARY(int element){
   return sevseg_ary[element];
 }
 
-void digits_init(){
+void digits_init() {
   for (int i = 0; i < WIDTH; i++) digit[i] = 1;
 }
 
-void output_digit(int out_digit[SEGMENT_NUM]){
+void output_digit(int out_digit[SEGMENT_NUM]) {
   for (int i = 0; i < SEGMENT_NUM; i++)
-    segment[i] = out_digit[i];  
+    segment[i] = out_digit[i];
 }
 
 // ------------------------- ERROR message -------------------------------------
-void err_message(){
+void err_message()
+{
   int error_array[3][7] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (mode_switcher()){
-    for (int i = 0; i < WIDTH; i++){
+  while (mode_switcher()) {
+    for (int i = 0; i < WIDTH; i++) {
       digits_init();
       digit[i] = 0;
       output_digit(error_array[i]);
-      wait(0.001);
+      wait(powpow(10, -7));
     }
   }
 }

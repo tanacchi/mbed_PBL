@@ -9,6 +9,7 @@
 #define SEGMENT_NUM 7
 #define DIGITS_NUM 3
 #define NUM_PATTERN 10
+#define MBED_LED_NUM 4
 
 #define TMP_SENSOR_PIN p20
 
@@ -24,8 +25,6 @@
 #define DIG_1_PIN p21
 #define DIG_2_PIN p22
 #define DIG_3_PIN p23
-
-#define WIDTH 3
 
 #define SWITCH_R p18
 #define SWITCH_L p19
@@ -47,7 +46,7 @@ DigitalOut digit[DIGITS_NUM] = {
   DigitalOut (DIG_3_PIN)
 };
 
-DigitalOut mbed_LED[4] = {
+DigitalOut mbed_LED[MBED_LED_NUM] = {
     DigitalOut (LED1),
     DigitalOut (LED2),
     DigitalOut (LED3),
@@ -58,8 +57,8 @@ DigitalOut mbed_LED[4] = {
 class sevseg_LED {
   int head, tale;
   double src_number;
-  int splited_num[WIDTH];
-  int output_array[WIDTH][SEGMENT_NUM];
+  int splited_num[DIGITS_NUM];
+  int output_array[DIGITS_NUM][SEGMENT_NUM];
 public:
   sevseg_LED(int head);
   void set_number(double input_num);
@@ -83,7 +82,7 @@ double tmp_stopper();
 int mode_reader();
 int switch_reader(int ch);
 int starter_switch();
-void err_message();
+void Err_message();
 void wait_switch_left();
 int mode_switcher();
 int count_stopper(int current_push);
@@ -95,38 +94,42 @@ void disp_limit_sevseg(int lim);
 
 // ========================== Test space =======================================
 
-
 // =============================================================================
 
+void Switch_test() {
+  sevseg_LED sw(2);
+  while (mode_switcher()) {
+    sw.set_number(mode_reader());
+    sw.split_Numerical_Pos();
+    sw.input_inteder_ary();
+    sw.output_sevseg();
+  }
+}
+
 // ------------------------- Main function -------------------------------------
-int main()
-{
+int main() {
   while (1) {
+    digits_init();
     mbedLED_init();
+    
     wait_switch_left();
     switch(starter_switch()) {
     case 0:
       Thermometer();
       break;
     case 1:
-      sevseg_LED sw(2);
-      while (mode_switcher()) {
-        sw.set_number(mode_reader());
-        sw.split_Numerical_Pos();
-        sw.input_inteder_ary();
-        sw.output_sevseg();
-      }
+      Switch_test();
       break;
     case 2:
       Counter();
       break;
     default:
-      err_message();
+      Err_message();
     }
   }
 }
 
-// ------------------------- About switch --------------------------------------
+// ------------------------- Switch code --------------------------------------
 int switch_reader(int ch) {
   DigitalIn tact_switch[2] = {
     DigitalIn (SWITCH_R),
@@ -143,7 +146,6 @@ int mode_reader() {
 }
 
 void wait_switch_left() {
-  digits_init();
   while (mode_reader() != 0) ;
   wait(powpow(10, -1));
 }
@@ -160,53 +162,21 @@ int starter_switch() {
 }
 
 int mode_switcher() {
-  static unsigned int count;
-  if (mode_reader() == 3) count++;
-  else {
+  static int count;
+  if (mode_reader() != 3) {
     count = 0;
     mbedLED_init();
   }
   disp_limit_LED(split_count(count, 500));
-  if (count < 500) return 1;
-  else return 0;
+  return (count++ < 500) ? 1 : 0;
 }
 
 int split_count(int count, int maximam) {
   int unit = maximam / 5;
-  if (count < 1.0 * unit) return 0;
-  else if (count < 2.0 * unit) return 1;
-  else if (count < 3.0 * unit) return 2;
-  else if (count < 4.0 * unit) return 3;
-  else return 4;
+  int i;
+  for (i = 1; (count - unit * i) > 0; i++) ;
+  return i - 1;
 }
-
-void disp_limit_sevseg(int lim) {
-  int wait_array[5][7] = {
-    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
-    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
-    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
-    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
-    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
-  };
-  for (int i = 0; i < WIDTH; i++) {
-    digits_init();
-    digit[i] = 0;
-    output_digit(wait_array[lim]);
-    wait(powpow(10, -3));
-  }
-}
-
-
-void disp_limit_LED(int lim) {
-  for (int i = 0; i < lim; i++)
-    mbed_LED[i] = 1; 
-}
-
-void mbedLED_init() {
-  for (int i = 0; i < 4; i++)
-    mbed_LED[i] = 0;
-}
-
 
 // -------------------------- Thermometer --------------------------------------
 void Thermometer() {
@@ -277,14 +247,20 @@ int change_param(int counter) {
 // ------------------------- Output 7 segment LED (member function) ------------
 sevseg_LED::sevseg_LED(int input_head) {
   head = input_head;
-  tale = head - WIDTH;
-  for (int i = 0; i < WIDTH; i++)
-    splited_num[i] = 0;
+  tale = head - DIGITS_NUM;
 }
 
 void sevseg_LED::set_number(double input_num) {
   src_number = input_num;
 }
+
+// void sevseg_LED::split_Numerical_Pos() {
+//   int i, j, k = 0;
+//   for (i = head; i > tale; i--) {
+//     for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
+//     splited_num[k++] = j;
+//   }
+// }
 
 void sevseg_LED::split_Numerical_Pos() {
   int i, j, k = 0;
@@ -295,13 +271,13 @@ void sevseg_LED::split_Numerical_Pos() {
 }
 
 void sevseg_LED::input_inteder_ary() {
-  for (int i = 0; i < WIDTH; i++)
+  for (int i = 0; i < DIGITS_NUM; i++)
     for (int j = 0; j < SEGMENT_NUM; j++)
       output_array[i][j] = convert_NUMintoARY(splited_num[i])[j];
 }
 
 void sevseg_LED::output_sevseg() {
-  for (int i = 0; i < WIDTH; i++) {
+  for (int i = 0; i < DIGITS_NUM; i++) {
     digits_init();
     digit[i] = 0;
     output_digit(output_array[i]);
@@ -330,12 +306,16 @@ int* convert_NUMintoARY(int element) {
     {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
     {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
   };
-  if (element < 0 || 9 < element) err_message();
+  if (element < 0 || 9 < element) Err_message();
   return sevseg_ary[element];
 }
 
 void digits_init() {
-  for (int i = 0; i < WIDTH; i++) digit[i] = 1;
+  for (int i = 0; i < DIGITS_NUM; i++) digit[i] = 1;
+}
+
+void mbedLED_init() {
+  for (int i = 0; i < MBED_LED_NUM; i++) mbed_LED[i] = 0;
 }
 
 void output_digit(int out_digit[SEGMENT_NUM]) {
@@ -343,15 +323,36 @@ void output_digit(int out_digit[SEGMENT_NUM]) {
     segment[i] = out_digit[i];
 }
 
-// ------------------------- ERROR message -------------------------------------
-void err_message() {
+// -------------------------- Some extra code ----------------------------------
+void disp_limit_sevseg(int lim) {
+  int wait_array[5][7] = {
+    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
+    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
+    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
+    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
+    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
+  };
+  for (int i = 0; i < DIGITS_NUM; i++) {
+    digits_init();
+    digit[i] = 0;
+    output_digit(wait_array[lim]);
+    wait(powpow(10, -3));
+  }
+}
+
+void disp_limit_LED(int lim) {
+  for (int i = 0; i < lim; i++)
+    mbed_LED[i] = 1; 
+}
+
+void Err_message() {
   int error_array[3][7] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
   while (1) {
-    for (int i = 0; i < WIDTH; i++) {
+    for (int i = 0; i < DIGITS_NUM; i++) {
       digits_init();
       digit[i] = 0;
       output_digit(error_array[i]);

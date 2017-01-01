@@ -1,13 +1,15 @@
 #include "mbed.h"
+#include <time.h>
 
 #define MBED_VOLTAGE 3.3
 
 #define ON 1
 #define OFF 0
-#define SEGMENT_NUM 7
-#define NUM_PATTERN 10
 
-#define TMP_SENSOR_PIN p20
+#define SEGMENT_NUM 7
+#define DIGITS_NUM 4
+#define NUM_PATTERN 10
+#define SEVSEG_WIDTH 4
 
 #define SEGMENT_A p10
 #define SEGMENT_B p11
@@ -20,10 +22,9 @@
 #define DIG_1_PIN p21
 #define DIG_2_PIN p22
 #define DIG_3_PIN p23
+#define DIG_4_PIN p24
 
-#define WIDTH 3
-
-DigitalOut segment[7] = {
+DigitalOut segment[SEGMENT_NUM] = {
   DigitalOut (SEGMENT_A),
   DigitalOut (SEGMENT_B),
   DigitalOut (SEGMENT_C),
@@ -33,76 +34,47 @@ DigitalOut segment[7] = {
   DigitalOut (SEGMENT_G)
 };
 
-DigitalOut digit[3] = {
+DigitalOut digit[DIGITS_NUM] = {
   DigitalOut (DIG_1_PIN),
   DigitalOut (DIG_2_PIN),
-  DigitalOut (DIG_3_PIN)
-};
-
-int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
-  {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
-  {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
-  {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
-  {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
-  {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
-  {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
-  {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
-  {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
-  {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
-  {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
+  DigitalOut (DIG_3_PIN),
+  DigitalOut (DIG_4_PIN)
 };
 
 class sevseg_LED{
   int head, tale;
-  double input_number;
-  int splited_num[WIDTH];
-  int output_array[WIDTH][SEGMENT_NUM]; 
+  int input_number;
+  int splited_num[SEVSEG_WIDTH];
+  int output_array[SEVSEG_WIDTH][SEGMENT_NUM]; 
 public:
   sevseg_LED(int head);
-  void set_number(double num);
+  void set_number(int num);
   void split_Numerical_Pos();
   void input_inteder_ary();
   void output_console();
   void output_sevseg();
 };
 
-double powpow(int a, int b);
-double get_Temperature(void);
+int powpow(int a, int b);
 void digits_init();
 int* exchange_NUMtoARY(int element);
 void output_digit(int out_digit[SEGMENT_NUM]);    
-void Thermometer();
 void Stop_watch();
 double minute_counter();
-void err_message();
+void sevseg_Clock();
+int get_time();
 
-int main(void){
-  //  Stop_watch();
-  err_message();
+int main(){
+  sevseg_Clock();
   return 0;
 }
 
-void Thermometer(){
-
-  double data;
-  sevseg_LED tmp(1);
-
-  while (1){
-    // data = get_Temperature();
-    tmp.set_number(data);
-    tmp.split_Numerical_Pos();
-    tmp.input_inteder_ary();
-    tmp.output_sevseg();
-  }
-}
-
-void Stop_watch(){
-  
-  double data;
-  sevseg_LED time(1);
+void sevseg_Clock(){
+  int data;
+  sevseg_LED time(3);
   
   while (1){
-    data = minute_counter();
+    data = get_time();
     time.set_number(data);
     time.split_Numerical_Pos();
     time.input_inteder_ary();
@@ -110,50 +82,77 @@ void Stop_watch(){
   }
 }
 
-double minute_counter(){
-  static double milinum;
-  milinum += 0.1;
-  if (milinum > 999) milinum = 0;
-  return milinum / 10;
+int get_time(){
+  struct tm tm;
+  time_t t = time(NULL);
+  int hour, minute;
+  
+  localtime_r(&t, &tm);
+  hour = tm.tm_hour;
+  minute = tm.tm_min;
+
+  return hour*100 + minute;
 }
 
-// double get_Temperature(void){
-//   AnalogIn mysensor(TMP_SENSOR_PIN);
-//   double replyed_vol  = mysensor * MBED_VOLTAGE;
-//   return replyed_vol * 100;
-// }
+sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
+  head = input_head;
+  tale = head - SEVSEG_WIDTH;
+}
 
-void err_message(){
-  int error_array[3][7] = {
-    {ON,  OFF, OFF, ON,  ON, ON,  ON},
-    {OFF, OFF, OFF, OFF, ON, OFF, ON},
-    {OFF, OFF, OFF, OFF, ON, OFF, ON}
-  };
-  
-  while (1){
-    for (int i = 0; i < WIDTH; i++){
-      digits_init();
-      digit[i] = 0;
-      output_digit(error_array[i]);
-      wait(0.001);
-    }
+void sevseg_LED::set_number(int num){
+  input_number = num;
+}
+
+void sevseg_LED::split_Numerical_Pos(){
+  int i, j, k = 0;
+  for (i = head; i > tale; i--){
+    for (j = 0; input_number >= powpow(10, i); j++) input_number -= powpow(10, i);
+    splited_num[k++] = j;
   }
 }
 
-double powpow(int a, int b){
-  double dest = 1;
-  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
-  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
+void sevseg_LED::input_inteder_ary(){
+  for (int i = 0; i < SEVSEG_WIDTH; i++)
+    for (int j = 0; j < SEGMENT_NUM; j++)
+      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
+}
+
+void sevseg_LED::output_sevseg(){ 
+  for (int i = 0; i < SEVSEG_WIDTH; i++){
+    digits_init();
+    digit[i] = 0;
+    output_digit(output_array[i]);
+    wait(0.001);
+  }
+}
+
+int powpow(int a, int b){
+  int dest = 1;
+  if (b > 0) for (int i = 0; i < b; i++) dest *= a;
+  if (b < 0) for (int i = 0; i > b; i--) dest /= a;
   
   return dest;
 }
 
 int* exchange_NUMtoARY(int element){
+  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+    {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
+    {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
+    {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
+    {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
+    {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
+    {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
+    {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
+    {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
+    {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
+    {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
+  };
+
   return sevseg_ary[element];
 }
 
 void digits_init(){
-  for (int i = 0; i < WIDTH; i++) digit[i] = 1;
+  for (int i = 0; i < SEVSEG_WIDTH; i++) digit[i] = 1;
 }
 
 void output_digit(int out_digit[SEGMENT_NUM]){
@@ -161,34 +160,20 @@ void output_digit(int out_digit[SEGMENT_NUM]){
     segment[i] = out_digit[i];  
 }
 
-sevseg_LED::sevseg_LED(int input_head){ // head < tale　-> Err!!
-  head = input_head;
-  tale = head - WIDTH;
-}
+void err_message(){
+  int error_array[DIGITS_NUM][SEGMENT_NUM] = {
+    {ON,  OFF, OFF, ON,  ON, ON,  ON},
+    {OFF, OFF, OFF, OFF, ON, OFF, ON},
+    {OFF, OFF, ON,  ON,  ON, OFF, ON},
+    {OFF, OFF, OFF, OFF, ON, OFF, ON}
+  };
 
-void sevseg_LED::set_number(double num){
-  input_number = num;
-}
-
-void sevseg_LED::split_Numerical_Pos(){
-  int i, j, k = 0;
-  for (i = head; i > tale-1; i--){ 
-    for (j = 0; input_number >= powpow(10, i); j++) input_number -=powpow(10, i);
-    splited_num[k++] = j;
+  while (1){
+    for (int i = 0; i < SEVSEG_WIDTH; i++){
+      digits_init();
+      digit[i] = 0;
+      output_digit(error_array[i]);
+      wait(0.001);
+    }
   }
-}
-
-void sevseg_LED::input_inteder_ary(){
-  for (int i = 0; i < WIDTH; i++)
-    for (int j = 0; j < SEGMENT_NUM; j++)
-      output_array[i][j] = exchange_NUMtoARY(splited_num[i])[j];
-}
-
-void sevseg_LED::output_sevseg(){ 
-   for (int i = 0; i < WIDTH; i++){
-     digits_init();
-     digit[i] = 0;
-     output_digit(output_array[i]);
-     wait(0.001);
-   }
 }

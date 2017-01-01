@@ -78,7 +78,7 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 
 ### class sevseg_LEDのメンバ関数
 
->* **`sevseg_LED tmp(1);`**  
+>**`sevseg_LED tmp(1);`**  
 
 >> sevseg_LED型の変数を宣言  
 >> それと同時に先頭の位を設定  
@@ -90,7 +90,8 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`set_number(data);`**  
+
+>**`set_number(data);`**  
 
 >> 7セグLEDに出力する数値を設定  
 
@@ -100,7 +101,7 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`split_Numerical_Pos();`**  
+>**`split_Numerical_Pos();`**  
 
 >> src_numberの数値を位ごとに分割し、  
 >> 配列(splited_num)に格納  
@@ -116,7 +117,7 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`input_inteder_ary();`**  
+>**`input_inteder_ary();`**  
 >```C++
 >void sevseg_LED::input_inteder_ary(){
 >  for (int i = 0; i < WIDTH; i++)
@@ -125,7 +126,7 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`output_sevseg();`**  
+>**`output_sevseg();`**  
 >```C++
 >void sevseg_LED::output_sevseg(){ 
 >  for (int i = 0; i < WIDTH; i++){

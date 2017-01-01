@@ -47,6 +47,13 @@ DigitalOut digit[DIGITS_NUM] = {
   DigitalOut (DIG_3_PIN)
 };
 
+DigitalOut mbed_LED[4] = {
+    DigitalOut (LED1),
+    DigitalOut (LED2),
+    DigitalOut (LED3),
+    DigitalOut (LED4)
+};
+
 // ------------------------- 7 segment LED class -------------------------------
 class sevseg_LED {
   int head, tale;
@@ -79,42 +86,15 @@ int starter_switch();
 void err_message();
 void wait_switch_left();
 int mode_switcher();
+int count_stopper(int current_push);
+int change_param(int counter);
+void mbedLED_init();
+int split_count(int count, int maximam);
+void disp_limit_LED(int lim);
+void disp_limit_sevseg(int lim);
 
 // ========================== Test space =======================================
-int count_stopper(int current_push) {
-  static int previous_push;
-  int judge = previous_push - current_push;
-  previous_push = current_push;
-  if (judge == 0) return 0;
-  else return current_push;
-}
 
-int change_param(int counter) {
-  switch (count_stopper(mode_reader())) {
-  case 1:
-    counter++;
-    break;
-  case 2:
-    if (counter > 0)
-      counter--;
-    break;
-  case 3:
-    counter = 0;
-    break;
-  }
-  return counter;
-}
-void Counter() {
-  sevseg_LED Counter(2);
-  static int param;
-  while (mode_switcher()) {
-    param = change_param(param);
-    Counter.set_number(param);
-    Counter.split_Numerical_Pos();
-    Counter.input_inteder_ary();
-    Counter.output_sevseg();
-  }
-}
 
 // =============================================================================
 
@@ -122,15 +102,13 @@ void Counter() {
 int main()
 {
   while (1) {
+    mbedLED_init();
     wait_switch_left();
     switch(starter_switch()) {
     case 0:
       Thermometer();
       break;
     case 1:
-      Counter();
-      break;
-    case 2:
       sevseg_LED sw(2);
       while (mode_switcher()) {
         sw.set_number(mode_reader());
@@ -138,6 +116,9 @@ int main()
         sw.input_inteder_ary();
         sw.output_sevseg();
       }
+      break;
+    case 2:
+      Counter();
       break;
     default:
       err_message();
@@ -164,25 +145,68 @@ int mode_reader() {
 void wait_switch_left() {
   digits_init();
   while (mode_reader() != 0) ;
-  wait(powpow(10, -1) * 5);
+  wait(powpow(10, -1));
 }
 
 // ------------------------- Mode select ---------------------------------------
 int starter_switch() {
-  for (int i = 0; i < powpow(10, 5); i++)
-    if (mode_reader() != 0) return mode_reader(); // <-- 0
-
+  for (int i = 0; i < 2; i++) {
+    for (int count = 0; count < powpow(10, 3); count++){
+      if (mode_reader() != 0) return mode_reader(); // <-- 0
+      disp_limit_sevseg(split_count(count, powpow(10, 3)));
+    }
+  }
   return 0;
 }
 
 int mode_switcher() {
   static unsigned int count;
-
   if (mode_reader() == 3) count++;
-  else count = 0;
-
-  return (count < powpow(10, 3)) ? 1 : 0;
+  else {
+    count = 0;
+    mbedLED_init();
+  }
+  disp_limit_LED(split_count(count, 500));
+  if (count < 500) return 1;
+  else return 0;
 }
+
+int split_count(int count, int maximam) {
+  int unit = maximam / 5;
+  if (count < 1.0 * unit) return 0;
+  else if (count < 2.0 * unit) return 1;
+  else if (count < 3.0 * unit) return 2;
+  else if (count < 4.0 * unit) return 3;
+  else return 4;
+}
+
+void disp_limit_sevseg(int lim) {
+  int wait_array[5][7] = {
+    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
+    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
+    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
+    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
+    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
+  };
+  for (int i = 0; i < WIDTH; i++) {
+    digits_init();
+    digit[i] = 0;
+    output_digit(wait_array[lim]);
+    wait(powpow(10, -3));
+  }
+}
+
+
+void disp_limit_LED(int lim) {
+  for (int i = 0; i < lim; i++)
+    mbed_LED[i] = 1; 
+}
+
+void mbedLED_init() {
+  for (int i = 0; i < 4; i++)
+    mbed_LED[i] = 0;
+}
+
 
 // -------------------------- Thermometer --------------------------------------
 void Thermometer() {
@@ -214,6 +238,41 @@ double tmp_stopper() { // meke shorter!
 }
 
 // -------------------------- Counter ---------------------------------------
+void Counter() {
+  static int param;
+  sevseg_LED Counter(2);
+  while (mode_switcher()) {
+    param = change_param(param);
+    Counter.set_number(param);
+    Counter.split_Numerical_Pos();
+    Counter.input_inteder_ary();
+    Counter.output_sevseg();
+  }
+}
+
+int count_stopper(int current_push) {
+  static int previous_push;
+  int judge = previous_push - current_push;
+  previous_push = current_push;
+  if (judge == 0) return 0;
+  else return current_push;
+}
+
+int change_param(int counter) {
+  switch (count_stopper(mode_reader())) {
+  case 1:
+    counter++;
+    break;
+  case 2:
+    if (counter > 0)
+      counter--;
+    break;
+  case 3:
+    counter = 0;
+    break;
+  }
+  return counter;
+}
 
 // ------------------------- Output 7 segment LED (member function) ------------
 sevseg_LED::sevseg_LED(int input_head) {

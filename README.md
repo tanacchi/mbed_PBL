@@ -78,9 +78,11 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 
 ### class sevseg_LEDのメンバ関数
 
->* **`sevseg_LED tmp(1);`**
->> sevseg_LED型の変数を宣言
->> それと同時に先頭の位を設定
+>* **`sevseg_LED tmp(1);`**  
+
+>> sevseg_LED型の変数を宣言  
+>> それと同時に先頭の位を設定  
+
 >```C++
 >sevseg_LED::sevseg_LED(int input_head){ //コンストラクタを定義します
 >  head = input_head;　// 引数(input_header)を先頭の位(head)に代入
@@ -88,17 +90,21 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`set_number(data);`**
->> 7セグLEDに出力する数値を設定
+>* **`set_number(data);`**  
+
+>> 7セグLEDに出力する数値を設定  
+
 >```C++
 >void sevseg_LED::set_number(double input_num){
 >  src_number = num; // src_numberに引数(num)を代入
 >}
 >```
 >
->* **`split_Numerical_Pos();`**
->> src_numberの数値を位ごとに分割し、
->> 配列(splited_num)に格納
+>* **`split_Numerical_Pos();`**  
+
+>> src_numberの数値を位ごとに分割し、  
+>> 配列(splited_num)に格納  
+
 >```C++
 >void sevseg_LED::split_Numerical_Pos(){
 >  int i, j, k = 0;
@@ -110,7 +116,7 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`input_inteder_ary();`**
+>* **`input_inteder_ary();`**  
 >```C++
 >void sevseg_LED::input_inteder_ary(){
 >  for (int i = 0; i < WIDTH; i++)
@@ -119,7 +125,7 @@ provisional_ver/ | 関数の草案だの試作品だのが入ってます
 >}
 >```
 >
->* **`output_sevseg();`**
+>* **`output_sevseg();`**  
 >```C++
 >void sevseg_LED::output_sevseg(){ 
 >  for (int i = 0; i < WIDTH; i++){

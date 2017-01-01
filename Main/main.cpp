@@ -81,12 +81,41 @@ void wait_switch_left();
 int mode_switcher();
 
 // ========================== Test space =======================================
-int count_stopper(int mode) {
-  static int previous_mode;
-  int judge = previous_mode - mode;
-  previous_mode = mode;
-  return judge;
+int count_stopper(int current_push) {
+  static int previous_push;
+  int judge = previous_push - current_push;
+  previous_push = current_push;
+  if (judge == 0) return 0;
+  else return current_push;
 }
+
+int change_param(int counter) {
+  switch (count_stopper(mode_reader())) {
+  case 1:
+    counter++;
+    break;
+  case 2:
+    if (counter > 0)
+      counter--;
+    break;
+  case 3:
+    counter = 0;
+    break;
+  }
+  return counter;
+}
+void Counter() {
+  sevseg_LED Counter(2);
+  static int param;
+  while (mode_switcher()) {
+    param = change_param(param);
+    Counter.set_number(param);
+    Counter.split_Numerical_Pos();
+    Counter.input_inteder_ary();
+    Counter.output_sevseg();
+  }
+}
+
 // =============================================================================
 
 // ------------------------- Main function -------------------------------------
@@ -102,13 +131,14 @@ int main()
       Counter();
       break;
     case 2:
-      sevseg_LED sw(0);
+      sevseg_LED sw(2);
       while (mode_switcher()) {
         sw.set_number(mode_reader());
         sw.split_Numerical_Pos();
         sw.input_inteder_ary();
         sw.output_sevseg();
       }
+      break;
     default:
       err_message();
     }
@@ -175,7 +205,7 @@ double get_Temperature() {
 }
 
 double tmp_stopper() { // meke shorter!
-  static double stock;
+  static double stock = 0;
   static int counter;
   if (counter > 5 * powpow(10, 2)) counter = 0;
   if (++counter == 1) stock = get_Temperature();
@@ -184,38 +214,6 @@ double tmp_stopper() { // meke shorter!
 }
 
 // -------------------------- Counter ---------------------------------------
-void Counter() {
-  double data;
-  sevseg_LED time(3);
-
-  while (mode_switcher()) {
-    data = minute_counter();
-    time.set_number(data);
-    time.split_Numerical_Pos();
-    time.input_inteder_ary();
-    time.output_sevseg();
-  }
-}
-
-int minute_counter() {
-  static int count;
-  if (count_stopper(mode_reader()) != 0) {
-    switch (mode_reader()) {
-    case 1:
-      count++;
-      break;
-    case 2:
-      if (count > 0) count--;
-      break;
-    case 3:
-      count = 0;
-      break;
-    default :
-      err_message();    
-    }
-  }
-  return count;
-}
 
 // ------------------------- Output 7 segment LED (member function) ------------
 sevseg_LED::sevseg_LED(int input_head) {

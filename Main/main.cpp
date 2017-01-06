@@ -1,7 +1,9 @@
 // ------------------------- Include files -------------------------------------
+
 #include "mbed.h"
 
 // ------------------------- Definition ----------------------------------------
+
 #define MBED_VOLTAGE 3.3
 
 #define ON 1
@@ -11,8 +13,6 @@
 #define NUM_PATTERN 10
 #define MBED_LED_NUM 4
 
-#define TMP_SENSOR_PIN p20
-
 #define SEGMENT_A p10
 #define SEGMENT_B p11
 #define SEGMENT_C p12
@@ -20,16 +20,19 @@
 #define SEGMENT_E p14
 #define SEGMENT_F p15
 #define SEGMENT_G p16
-#define SEGMENT_POINT p17
+#define SEG_POINT p17
+
+#define SWITCH_R p18
+#define SWITCH_L p19
+
+#define TMP_SENSOR_PIN p20
 
 #define DIG_1_PIN p21
 #define DIG_2_PIN p22
 #define DIG_3_PIN p23
 
-#define SWITCH_R p18
-#define SWITCH_L p19
-
 // ------------------------- Global variable -----------------------------------
+
 DigitalOut segment[SEGMENT_NUM] = {
   DigitalOut (SEGMENT_A),
   DigitalOut (SEGMENT_B),
@@ -54,6 +57,7 @@ DigitalOut mbed_LED[MBED_LED_NUM] = {
 };
 
 // ------------------------- 7 segment LED class -------------------------------
+
 class sevseg_LED {
   int head, tale;
   double src_number;
@@ -69,6 +73,7 @@ public:
 };
 
 // ------------------------- Function prototype --------------------------------
+
 double powpow(int a, int b);
 double get_Temperature();
 void digits_init();
@@ -107,6 +112,7 @@ void Switch_test() {
 }
 
 // ------------------------- Main function -------------------------------------
+
 int main() {
   while (1) {
     digits_init();
@@ -130,6 +136,7 @@ int main() {
 }
 
 // ------------------------- Switch code --------------------------------------
+
 int switch_reader(int ch) {
   DigitalIn tact_switch[2] = {
     DigitalIn (SWITCH_R),
@@ -151,11 +158,12 @@ void wait_switch_left() {
 }
 
 // ------------------------- Mode select ---------------------------------------
+
 int starter_switch() {
-  for (int i = 0; i < 2; i++) {
-    for (int count = 0; count < powpow(10, 3); count++){
-      if (mode_reader() != 0) return mode_reader(); // <-- 0
+  for (int i = 0; i < 2; i++){
+    for (int count = 0; count < powpow(10, 3); count++) {
       disp_limit_sevseg(split_count(count, powpow(10, 3)));
+      if (mode_reader() != 0) return mode_reader(); // <-- 0
     }
   }
   return 0;
@@ -179,6 +187,7 @@ int split_count(int count, int maximam) {
 }
 
 // -------------------------- Thermometer --------------------------------------
+
 void Thermometer() {
   double data = get_Temperature();
   sevseg_LED tmp(1);
@@ -199,15 +208,16 @@ double get_Temperature() {
 }
 
 double tmp_stopper() { // meke shorter!
-  static double stock = 0;
+  static double stock;
   static int counter;
-  if (counter > 5 * powpow(10, 2)) counter = 0;
-  if (++counter == 1) stock = get_Temperature();
+  if (counter++ > 5 * powpow(10, 2)) counter = 0;
+  if (counter == 1) stock = get_Temperature();
 
   return stock;
 }
 
 // -------------------------- Counter ---------------------------------------
+
 void Counter() {
   static int param;
   sevseg_LED Counter(2);
@@ -245,6 +255,7 @@ int change_param(int counter) {
 }
 
 // ------------------------- Output 7 segment LED (member function) ------------
+
 sevseg_LED::sevseg_LED(int input_head) {
   head = input_head;
   tale = head - DIGITS_NUM;
@@ -263,10 +274,10 @@ void sevseg_LED::set_number(double input_num) {
 // }
 
 void sevseg_LED::split_Numerical_Pos() {
-  int i, j, k = 0;
-  for (i = head; i > tale; i--) {
-    for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
-    splited_num[k++] = j;
+  int i, j;
+  for (i = 0; i < DIGITS_NUM; i++) {
+    for (j = 1; src_number - powpow(10, head) * j >= 0; j++);
+    splited_num[i] = j;
   }
 }
 
@@ -286,6 +297,7 @@ void sevseg_LED::output_sevseg() {
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
+
 double powpow(int a, int b) {
   double dest = 1;
   if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
@@ -311,19 +323,19 @@ int* convert_NUMintoARY(int element) {
 }
 
 void digits_init() {
-  for (int i = 0; i < DIGITS_NUM; i++) digit[i] = 1;
+  for (int i = 0; i < DIGITS_NUM; i++) digit[i] = ON;
 }
 
 void mbedLED_init() {
-  for (int i = 0; i < MBED_LED_NUM; i++) mbed_LED[i] = 0;
+  for (int i = 0; i < MBED_LED_NUM; i++) mbed_LED[i] = OFF;
 }
 
 void output_digit(int out_digit[SEGMENT_NUM]) {
-  for (int i = 0; i < SEGMENT_NUM; i++)
-    segment[i] = out_digit[i];
+  for (int i = 0; i < SEGMENT_NUM; i++) segment[i] = out_digit[i];
 }
 
 // -------------------------- Some extra code ----------------------------------
+
 void disp_limit_sevseg(int lim) {
   int wait_array[5][7] = {
     {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
@@ -341,8 +353,7 @@ void disp_limit_sevseg(int lim) {
 }
 
 void disp_limit_LED(int lim) {
-  for (int i = 0; i < lim; i++)
-    mbed_LED[i] = 1; 
+  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
 }
 
 void Err_message() {

@@ -62,7 +62,7 @@ class sevseg_LED {
   int head, tale;
   double src_number;
   int splited_num[DIGITS_NUM];
-  int output_array[DIGITS_NUM][SEGMENT_NUM];
+  int inteder_ary[DIGITS_NUM][SEGMENT_NUM];
 public:
   sevseg_LED(int head);
   void set_number(double input_num);
@@ -96,6 +96,7 @@ void mbedLED_init();
 int split_count(int count, int maximam);
 void disp_limit_LED(int lim);
 void disp_limit_sevseg(int lim);
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
 
 // ========================== Test space =======================================
 
@@ -163,7 +164,7 @@ int starter_switch() {
   for (int i = 0; i < 2; i++){
     for (int count = 0; count < powpow(10, 3); count++) {
       disp_limit_sevseg(split_count(count, powpow(10, 3)));
-      if (mode_reader() != 0) return mode_reader(); // <-- 0
+      if (mode_reader() != 0) return mode_reader();
     }
   }
   return 0;
@@ -265,35 +266,30 @@ void sevseg_LED::set_number(double input_num) {
   src_number = input_num;
 }
 
-// void sevseg_LED::split_Numerical_Pos() {
-//   int i, j, k = 0;
-//   for (i = head; i > tale; i--) {
-//     for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
-//     splited_num[k++] = j;
-//   }
-// }
-
 void sevseg_LED::split_Numerical_Pos() {
-  int i, j;
-  for (i = 0; i < DIGITS_NUM; i++) {
-    for (j = 1; src_number - powpow(10, head) * j >= 0; j++);
-    splited_num[i] = j;
+  int i, j, k = 0;
+  for (i = head; i > tale; i--) {
+    for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
+    splited_num[k++] = j;
   }
 }
+
+// void sevseg_LED::split_Numerical_Pos() {
+//   int i, j;
+//   for (i = 0; i < DIGITS_NUM; i++) {
+//     for (j = 1; src_number - powpow(10, head) * j >= 0; j++) ;
+//     splited_num[i] = j;
+//   }
+// }
 
 void sevseg_LED::input_inteder_ary() {
   for (int i = 0; i < DIGITS_NUM; i++)
     for (int j = 0; j < SEGMENT_NUM; j++)
-      output_array[i][j] = convert_NUMintoARY(splited_num[i])[j];
+      inteder_ary[i][j] = convert_NUMintoARY(splited_num[i])[j];
 }
 
 void sevseg_LED::output_sevseg() {
-  for (int i = 0; i < DIGITS_NUM; i++) {
-    digits_init();
-    digit[i] = 0;
-    output_digit(output_array[i]);
-    wait(powpow(10, -3));
-  }
+  output_array(inteder_ary);
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
@@ -334,6 +330,14 @@ void output_digit(int out_digit[SEGMENT_NUM]) {
   for (int i = 0; i < SEGMENT_NUM; i++) segment[i] = out_digit[i];
 }
 
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
+  for (int i = 0; i < DIGITS_NUM; i++) {
+    digits_init();
+    digit[i] = 0;
+    output_digit(inteder_array[i]);
+    wait(powpow(10, -3));
+  }
+}
 // -------------------------- Some extra code ----------------------------------
 
 void disp_limit_sevseg(int lim) {
@@ -353,7 +357,7 @@ void disp_limit_sevseg(int lim) {
 }
 
 void disp_limit_LED(int lim) {
-  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
+  for (int i = 0; i < lim; i++) mbed_LED[i] = ON; 
 }
 
 void Err_message() {
@@ -362,12 +366,5 @@ void Err_message() {
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (1) {
-    for (int i = 0; i < DIGITS_NUM; i++) {
-      digits_init();
-      digit[i] = 0;
-      output_digit(error_array[i]);
-      wait(powpow(10, -3));
-    }
-  }
+  while (1) output_array(error_array);
 }

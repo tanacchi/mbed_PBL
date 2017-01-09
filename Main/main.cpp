@@ -100,7 +100,56 @@ void disp_limit_sevseg(int lim);
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
 
 // ========================== Test space =======================================
+void change_disp_num(int display_number) {
+  static int count;
+  if (count > 500) {
+    display_number++;
+    count = 0;
+  }
+  count++;
+}
 
+void Disp_mode() {
+  int kunekune[][DIGITS_NUM][SEGMENT_NUM] = {
+    {
+      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
+      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
+      {OFF, OFF, ON,  OFF, OFF, ON,  ON }
+    },
+    {
+      {ON,  ON,  OFF, ON,  ON,  OFF, OFF},
+      {ON,  ON,  OFF, ON,  ON,  OFF, OFF},
+      {ON,  ON,  OFF, ON,  ON,  OFF, OFF}
+    },
+    {
+      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
+      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
+      {OFF, OFF, ON,  OFF, OFF, ON,  ON }
+    },
+    {
+      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
+      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
+      {OFF, ON,  OFF, OFF, ON,  OFF, ON }
+    },
+    {
+      {ON,  OFF, ON,  ON,  OFF, ON,  OFF},
+      {ON,  OFF, ON,  ON,  OFF, ON,  OFF},
+      {ON,  OFF, ON,  ON,  OFF, ON,  OFF}
+    },
+    {
+      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
+      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
+      {OFF, ON,  OFF, OFF, ON,  OFF, ON }
+    },
+    NULL
+  };
+  while (1) {
+    int display_number = 6;
+    change_disp_num(display_number);
+    if (kunekune[display_number] == NULL) display_number = 0;
+    output_array(kunekune[display_number]);
+  }
+}
 // =============================================================================
 
 void Switch_test() {
@@ -126,7 +175,7 @@ int main() {
       Thermometer();
       break;
     case 1:
-      Switch_test();
+      Disp_mode();
       break;
     case 2:
       Counter();
@@ -334,7 +383,7 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
 // -------------------------- Some extra code ----------------------------------
 
 void disp_limit_sevseg(int lim) {
-  int wait_array[WAIT_PATTERN][SEGMENT_NUM] = {
+  static int wait_array[WAIT_PATTERN][SEGMENT_NUM] = {
     {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
     {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
     {OFF, OFF, OFF, OFF, OFF, OFF, ON },
@@ -354,7 +403,7 @@ void disp_limit_LED(int lim) {
 }
 
 void Err_message() {
-  int error_array[DIGITS_NUM][SEGMENT_NUM] = {
+  static int error_array[DIGITS_NUM][SEGMENT_NUM] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}

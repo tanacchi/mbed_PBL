@@ -12,6 +12,7 @@
 #define DIGITS_NUM 3
 #define NUM_PATTERN 10
 #define MBED_LED_NUM 4
+#define WAIT_PATTERN 5
 
 #define SEGMENT_A p10
 #define SEGMENT_B p11
@@ -120,7 +121,7 @@ int main() {
     mbedLED_init();
     
     wait_switch_left();
-    switch(starter_switch()) {
+    switch (starter_switch()) {
     case 0:
       Thermometer();
       break;
@@ -161,7 +162,7 @@ void wait_switch_left() {
 // ------------------------- Mode select ---------------------------------------
 
 int starter_switch() {
-  for (int i = 0; i < 2; i++){
+  for (int i = 0; i < 2; i++) {
     for (int count = 0; count < powpow(10, 3); count++) {
       disp_limit_sevseg(split_count(count, powpow(10, 3)));
       if (mode_reader() != 0) return mode_reader();
@@ -274,14 +275,6 @@ void sevseg_LED::split_Numerical_Pos() {
   }
 }
 
-// void sevseg_LED::split_Numerical_Pos() {
-//   int i, j;
-//   for (i = 0; i < DIGITS_NUM; i++) {
-//     for (j = 1; src_number - powpow(10, head) * j >= 0; j++) ;
-//     splited_num[i] = j;
-//   }
-// }
-
 void sevseg_LED::input_inteder_ary() {
   for (int i = 0; i < DIGITS_NUM; i++)
     for (int j = 0; j < SEGMENT_NUM; j++)
@@ -319,11 +312,11 @@ int* convert_NUMintoARY(int element) {
 }
 
 void digits_init() {
-  for (int i = 0; i < DIGITS_NUM; i++) digit[i] = ON;
+  for (int i = 0; i < DIGITS_NUM; i++) digit[i] = 1;
 }
 
 void mbedLED_init() {
-  for (int i = 0; i < MBED_LED_NUM; i++) mbed_LED[i] = OFF;
+  for (int i = 0; i < MBED_LED_NUM; i++) mbed_LED[i] = 0;
 }
 
 void output_digit(int out_digit[SEGMENT_NUM]) {
@@ -341,7 +334,7 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
 // -------------------------- Some extra code ----------------------------------
 
 void disp_limit_sevseg(int lim) {
-  int wait_array[5][7] = {
+  int wait_array[WAIT_PATTERN][SEGMENT_NUM] = {
     {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
     {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
     {OFF, OFF, OFF, OFF, OFF, OFF, ON },
@@ -357,11 +350,11 @@ void disp_limit_sevseg(int lim) {
 }
 
 void disp_limit_LED(int lim) {
-  for (int i = 0; i < lim; i++) mbed_LED[i] = ON; 
+  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
 }
 
 void Err_message() {
-  int error_array[3][7] = {
+  int error_array[DIGITS_NUM][SEGMENT_NUM] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}

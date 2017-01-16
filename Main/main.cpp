@@ -99,69 +99,6 @@ void disp_limit_LED(int lim);
 void disp_limit_sevseg(int lim);
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
 
-// ========================== Test space =======================================
-void change_disp_num(int display_number) {
-  static int count;
-  if (count > 500) {
-    display_number++;
-    count = 0;
-  }
-  count++;
-}
-
-void Disp_mode() {
-  int kunekune[][DIGITS_NUM][SEGMENT_NUM] = {
-    {
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON }
-    },
-    {
-      {ON,  ON,  OFF, ON,  ON,  OFF, OFF},
-      {ON,  ON,  OFF, ON,  ON,  OFF, OFF},
-      {ON,  ON,  OFF, ON,  ON,  OFF, OFF}
-    },
-    {
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON }
-    },
-    {
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON }
-    },
-    {
-      {ON,  OFF, ON,  ON,  OFF, ON,  OFF},
-      {ON,  OFF, ON,  ON,  OFF, ON,  OFF},
-      {ON,  OFF, ON,  ON,  OFF, ON,  OFF}
-    },
-    {
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON }
-    },
-    NULL
-  };
-  while (1) {
-    int display_number = 6;
-    change_disp_num(display_number);
-    if (kunekune[display_number] == NULL) display_number = 0;
-    output_array(kunekune[display_number]);
-  }
-}
-// =============================================================================
-
-void Switch_test() {
-  sevseg_LED sw(2);
-  while (mode_switcher()) {
-    sw.set_number(mode_reader());
-    sw.split_Numerical_Pos();
-    sw.input_inteder_ary();
-    sw.output_sevseg();
-  }
-}
-
 // ------------------------- Main function -------------------------------------
 
 int main() {
@@ -171,11 +108,8 @@ int main() {
     
     wait_switch_left();
     switch (starter_switch()) {
-    case 0:
-      Thermometer();
-      break;
     case 1:
-      Disp_mode();
+      Thermometer();
       break;
     case 2:
       Counter();
@@ -211,7 +145,7 @@ void wait_switch_left() {
 // ------------------------- Mode select ---------------------------------------
 
 int starter_switch() {
-  for (int i = 0; i < 2; i++) {
+  while (1) {
     for (int count = 0; count < powpow(10, 3); count++) {
       disp_limit_sevseg(split_count(count, powpow(10, 3)));
       if (mode_reader() != 0) return mode_reader();
@@ -383,7 +317,7 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
 // -------------------------- Some extra code ----------------------------------
 
 void disp_limit_sevseg(int lim) {
-  static int wait_array[WAIT_PATTERN][SEGMENT_NUM] = {
+  int wait_array[WAIT_PATTERN][SEGMENT_NUM] = {
     {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
     {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
     {OFF, OFF, OFF, OFF, OFF, OFF, ON },
@@ -403,10 +337,10 @@ void disp_limit_LED(int lim) {
 }
 
 void Err_message() {
-  static int error_array[DIGITS_NUM][SEGMENT_NUM] = {
+  int error_array[DIGITS_NUM][SEGMENT_NUM] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (1) output_array(error_array);
+  while (mode_switcher()) output_array(error_array);
 }

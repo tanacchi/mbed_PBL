@@ -12,7 +12,7 @@
 #define DIGITS_NUM 3
 #define NUM_PATTERN 10
 #define MBED_LED_NUM 4
-#define WAIT_PATTERN 5
+#define WAIT_NUM 5
 
 #define SEGMENT_A p10
 #define SEGMENT_B p11
@@ -75,92 +75,27 @@ public:
 
 // ------------------------- Function prototype --------------------------------
 
-double powpow(int a, int b);
-double get_Temperature();
-void digits_init();
-int* convert_NUMintoARY(int element);
-void output_digit(int out_digit[SEGMENT_NUM]);
-void Thermometer();
-void Counter();
-int minute_counter();
-double average_Temperature();
-double tmp_stopper();
-int mode_reader();
 int switch_reader(int ch);
-int starter_switch();
-void Err_message();
+int mode_reader();
 void wait_switch_left();
+int starter_switch();
 int mode_switcher();
+int split_count(int count, int maximam);
+void Thermometer();
+double get_Temperature();
+double tmp_stopper();
+void Counter();
 int count_stopper(int current_push);
 int change_param(int counter);
+double powpow(int a, int b);
+int* convert_NUMintoARY(int element);
+void digits_init();
 void mbedLED_init();
-int split_count(int count, int maximam);
-void disp_limit_LED(int lim);
-void disp_limit_sevseg(int lim);
+void output_digit(int out_digit[SEGMENT_NUM]);
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
-
-// ========================== Test space =======================================
-void change_disp_num(int display_number) {
-  static int count;
-  if (count > 500) {
-    display_number++;
-    count = 0;
-  }
-  count++;
-}
-
-void Disp_mode() {
-  int kunekune[][DIGITS_NUM][SEGMENT_NUM] = {
-    {
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON }
-    },
-    {
-      {ON,  ON,  OFF, ON,  ON,  OFF, OFF},
-      {ON,  ON,  OFF, ON,  ON,  OFF, OFF},
-      {ON,  ON,  OFF, ON,  ON,  OFF, OFF}
-    },
-    {
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON },
-      {OFF, OFF, ON,  OFF, OFF, ON,  ON }
-    },
-    {
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON }
-    },
-    {
-      {ON,  OFF, ON,  ON,  OFF, ON,  OFF},
-      {ON,  OFF, ON,  ON,  OFF, ON,  OFF},
-      {ON,  OFF, ON,  ON,  OFF, ON,  OFF}
-    },
-    {
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON },
-      {OFF, ON,  OFF, OFF, ON,  OFF, ON }
-    },
-    NULL
-  };
-  while (1) {
-    int display_number = 6;
-    change_disp_num(display_number);
-    if (kunekune[display_number] == NULL) display_number = 0;
-    output_array(kunekune[display_number]);
-  }
-}
-// =============================================================================
-
-void Switch_test() {
-  sevseg_LED sw(2);
-  while (mode_switcher()) {
-    sw.set_number(mode_reader());
-    sw.split_Numerical_Pos();
-    sw.input_inteder_ary();
-    sw.output_sevseg();
-  }
-}
+void disp_limit_sevseg(int lim);
+void disp_limit_LED(int lim);
+void Err_message();
 
 // ------------------------- Main function -------------------------------------
 
@@ -171,11 +106,8 @@ int main() {
     
     wait_switch_left();
     switch (starter_switch()) {
-    case 0:
-      Thermometer();
-      break;
     case 1:
-      Disp_mode();
+      Thermometer();
       break;
     case 2:
       Counter();
@@ -211,7 +143,7 @@ void wait_switch_left() {
 // ------------------------- Mode select ---------------------------------------
 
 int starter_switch() {
-  for (int i = 0; i < 2; i++) {
+  while (1) {
     for (int count = 0; count < powpow(10, 3); count++) {
       disp_limit_sevseg(split_count(count, powpow(10, 3)));
       if (mode_reader() != 0) return mode_reader();
@@ -226,12 +158,12 @@ int mode_switcher() {
     count = 0;
     mbedLED_init();
   }
-  disp_limit_LED(split_count(count, 500));
+  disp_limit_LED(split_count(count, 750));
   return (count++ < 500) ? 1 : 0;
 }
 
 int split_count(int count, int maximam) {
-  int unit = maximam / 5;
+  int unit = maximam / WAIT_NUM;
   int i;
   for (i = 1; (count - unit * i) > 0; i++) ;
   return i - 1;
@@ -383,7 +315,7 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
 // -------------------------- Some extra code ----------------------------------
 
 void disp_limit_sevseg(int lim) {
-  static int wait_array[WAIT_PATTERN][SEGMENT_NUM] = {
+  int wait_array[WAIT_NUM][SEGMENT_NUM] = {
     {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
     {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
     {OFF, OFF, OFF, OFF, OFF, OFF, ON },
@@ -403,10 +335,10 @@ void disp_limit_LED(int lim) {
 }
 
 void Err_message() {
-  static int error_array[DIGITS_NUM][SEGMENT_NUM] = {
+  int error_array[DIGITS_NUM][SEGMENT_NUM] = {
     {ON,  OFF, OFF, ON,  ON, ON,  ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (1) output_array(error_array);
+  while (mode_switcher()) output_array(error_array);
 }

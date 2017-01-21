@@ -51,10 +51,10 @@ DigitalOut digit[DIGITS_NUM] = {
 };
 
 DigitalOut mbed_LED[MBED_LED_NUM] = {
-    DigitalOut (LED1),
-    DigitalOut (LED2),
-    DigitalOut (LED3),
-    DigitalOut (LED4)
+  DigitalOut (LED1),
+  DigitalOut (LED2),
+  DigitalOut (LED3),
+  DigitalOut (LED4)
 };
 
 DigitalOut digit_point(SEG_POINT);
@@ -153,7 +153,6 @@ int starter_switch() {
       if (mode_reader() != 0) return mode_reader();
     }
   }
-  return 0;
 }
 
 int mode_switcher() {
@@ -175,7 +174,7 @@ int split_count(int count, int maximam) {
 
 // -------------------------- Thermometer --------------------------------------
 
-void Thermometer() {
+void Thermometer() { // shorter
   double data = get_Temperature();
   sevseg_LED tmp(1);
 
@@ -199,7 +198,6 @@ double tmp_stopper() { // meke shorter!
   static int counter;
   if (counter++ > 5 * powpow(10, 2)) counter = 0;
   if (!counter) stock = get_Temperature();
-
   return stock;
 }
 
@@ -208,6 +206,7 @@ double tmp_stopper() { // meke shorter!
 void Counter() {
   static int param;
   sevseg_LED Counter(2);
+
   while (mode_switcher()) {
     param = change_param(param);
     Counter.set_number(param);
@@ -221,7 +220,7 @@ int count_stopper(int current_push) {
   static int previous_push;
   int judge = previous_push - current_push;
   previous_push = current_push;
-  if (judge == 0) return 0;
+  if (!judge) return 0;
   else return current_push;
 }
 
@@ -273,7 +272,7 @@ void sevseg_LED::output_sevseg() {
 
 void sevseg_LED::set_digit_point(int i) {
   if (i == point) digit_point = 1;
-  else digit_opint = 0;
+  else digit_point = 0;
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
@@ -286,7 +285,7 @@ double powpow(int a, int b) {
 }
 
 int* convert_NUMintoARY(int element) {
-  static int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
     {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
     {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
     {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
@@ -319,7 +318,8 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
     digits_init();
     digit[i] = 0;
     output_digit(inteder_array[i]); 
-    wait(powpow(10, -3));
+    set_digit_point(i);
+    wait(powpow(0.001));
   }
 }
 // -------------------------- Some extra code ----------------------------------
@@ -336,8 +336,7 @@ void disp_limit_sevseg(int lim) {
     digits_init();
     digit[i] = 0;
     output_digit(wait_array[lim]);
-    set_digit_point(i);
-    wait(powpow(10, -3));
+    wait(powpow(0.001);
   }
 }
 
@@ -351,5 +350,5 @@ void Err_message() {
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-x  while (mode_switcher()) output_array(error_array);
+  while (mode_switcher()) output_array(error_array);
 }

@@ -2,12 +2,18 @@
 
 ## インクルードファイル
 
+>今回は mbed用のインクルードファイルのみ
+>
 >```C++
 >#include "mbed.h"
 >```
 
 ## オブジェクト形式マクロ
 
+>記号定数の定義をしています
+>これ以降の記述に対して、MBED_VOLTAGE→3.3  SEGMENT_NUM→7 のように  
+>マクロ置換がなされます  
+>
 >```C++
 >#define MBED_VOLTAGE 3.3
 >
@@ -38,7 +44,64 @@
 >#define DIG_3_PIN p23
 >```
 
+## グローバル変数
+
+>どの関数からでも参照できる変数です
+>7セグLEDのサンプルコードでa~gやdig1~dig3で宣言されていた変数は
+>DigitalOut型の配列として、まとめて扱っています
+>
+>```C++
+>DigitalOut segment[SEGMENT_NUM] = {
+>  DigitalOut (SEGMENT_A),
+>  DigitalOut (SEGMENT_B),
+>  DigitalOut (SEGMENT_C),
+>  DigitalOut (SEGMENT_D),
+>  DigitalOut (SEGMENT_E),
+>  DigitalOut (SEGMENT_F),
+>  DigitalOut (SEGMENT_G)
+>};
+>
+>DigitalOut digit[DIGITS_NUM] = {
+>  DigitalOut (DIG_1_PIN),
+>  DigitalOut (DIG_2_PIN),
+>  DigitalOut (DIG_3_PIN)
+>};
+>
+>DigitalOut mbed_LED[MBED_LED_NUM] = {
+>  DigitalOut (LED1),
+>  DigitalOut (LED2),
+>  DigitalOut (LED3),
+>  DigitalOut (LED4)
+>};
+>
+>DigitalOut digit_point(SEG_POINT);
+>```
+
 ## 7セグメントLEDに関するもの
+
+### sevseg_LEDクラス
+
+>数値入力から出力までに必要なデータや、それらを操作する関数を
+>一式にまとめているようなものです
+>モードをそれぞれ実行する際に宣言されています
+>
+>```C++
+>class sevseg_LED {
+>  int head, tale;   // 数値の先頭の桁、最後の桁をクラス宣言時に設定します
+>  int point;   //　
+>  double src_number;   //
+>  int splited_num[DIGITS_NUM];   //
+>  int inteder_ary[DIGITS_NUM][SEGMENT_NUM];   //
+>public:
+>  sevseg_LED(int head);
+>  void set_number(double input_num);
+>  void split_Numerical_Pos();
+>  void input_inteder_ary();
+>  void output_console();
+>  void output_sevseg();
+>  void set_digit_point(int i);
+>};
+>```
 
 ### class sevseg_LEDのメンバ関数
 
@@ -51,22 +114,3 @@
 ## カウンターに関するもの
 
 ## エラーメッセージに関するもの
->
->* `err_message();`
->```C++
->void err_message(){
->  int error_array[3][7] = {
->    {ON,  OFF, OFF, ON,  ON, ON,  ON},
->    {OFF, OFF, OFF, OFF, ON, OFF, ON},
->    {OFF, OFF, OFF, OFF, ON, OFF, ON}
->  };
->  while (1){
->    for (int i = 0; i < WIDTH; i++){
->      digits_init();
->      digit[i] = 0;
->      output_digit(error_array[i]);
->      wait(powpow(10, 3));
->    }
->  }
->}
->```

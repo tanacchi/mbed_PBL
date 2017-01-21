@@ -35,6 +35,6 @@ LEDが4つとも光った後にスイッチから手を離すとモードセレ�
 これで数値が表示されます  
 関数たちの詳しい説明等はレポジトリ内の
 
-[functions_description.md](https://github.com/tanacchi/mbed_PBL/functions_description.md)
+[functions_description.md](https://github.com/tanacchi/mbed_PBL/blob/master/functions_description.md)
 
 を参照してください

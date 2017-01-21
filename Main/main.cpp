@@ -57,10 +57,13 @@ DigitalOut mbed_LED[MBED_LED_NUM] = {
     DigitalOut (LED4)
 };
 
+DigitalOut digit_point(SEG_POINT);
+
 // ------------------------- 7 segment LED class -------------------------------
 
 class sevseg_LED {
   int head, tale;
+  int point;
   double src_number;
   int splited_num[DIGITS_NUM];
   int inteder_ary[DIGITS_NUM][SEGMENT_NUM];
@@ -71,6 +74,7 @@ public:
   void input_inteder_ary();
   void output_console();
   void output_sevseg();
+  void set_digit_point(int i);
 };
 
 // ------------------------- Function prototype --------------------------------
@@ -194,7 +198,7 @@ double tmp_stopper() { // meke shorter!
   static double stock;
   static int counter;
   if (counter++ > 5 * powpow(10, 2)) counter = 0;
-  if (counter == 1) stock = get_Temperature();
+  if (!counter) stock = get_Temperature();
 
   return stock;
 }
@@ -241,6 +245,7 @@ int change_param(int counter) {
 
 sevseg_LED::sevseg_LED(int input_head) {
   head = input_head;
+  point = head;
   tale = head - DIGITS_NUM;
 }
 
@@ -264,6 +269,11 @@ void sevseg_LED::input_inteder_ary() {
 
 void sevseg_LED::output_sevseg() {
   output_array(inteder_ary);
+}
+
+void sevseg_LED::set_digit_point(int i) {
+  if (i == point) digit_point = 1;
+  else digit_opint = 0;
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
@@ -308,7 +318,7 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
   for (int i = 0; i < DIGITS_NUM; i++) {
     digits_init();
     digit[i] = 0;
-    output_digit(inteder_array[i]);
+    output_digit(inteder_array[i]); 
     wait(powpow(10, -3));
   }
 }
@@ -326,6 +336,7 @@ void disp_limit_sevseg(int lim) {
     digits_init();
     digit[i] = 0;
     output_digit(wait_array[lim]);
+    set_digit_point(i);
     wait(powpow(10, -3));
   }
 }
@@ -340,5 +351,5 @@ void Err_message() {
     {OFF, OFF, OFF, OFF, ON, OFF, ON},
     {OFF, OFF, OFF, OFF, ON, OFF, ON}
   };
-  while (mode_switcher()) output_array(error_array);
+x  while (mode_switcher()) output_array(error_array);
 }

@@ -196,7 +196,7 @@
 >  }
 >}
 >```
->
+>***********************************************************
 >**int mode_switcher();**  
 >モード切替に使う関数  
 >スイッチが両方とも押されていたらcountを増やしていき  
@@ -217,7 +217,7 @@
 >  return (count++ < 750) ? 1 : 0;
 >}
 >```
-
+>***********************************************************
 >**int split_count(int count, int maximam);**  
 >maximam(上限)を設定し、countがmaximamを5分割したうちどこに位置するのかを返す  
 >例えば maximam = 500 と設定した時、  
@@ -234,6 +234,55 @@
 >  int i;
 >  for (i = 1; (count - unit * i) > 0; i++) ;
 >  return i - 1;
+>}
+>```
+
+## 温度計に関するもの
+
+>**void Thermometer();**
+>温度計に必要な処理を1セットにまとめたもの
+>
+>```C++
+>void Thermometer() {
+>  double tmp_data;
+>  sevseg_LED tmp(1);
+>
+>  while (mode_switcher()) {
+>    tmp_data = tmp_stopper();
+>    tmp.set_number(tmp_data);
+>    tmp.split_Numerical_Pos();
+>    tmp.input_inteder_ary();
+>    tmp.output_sevseg();
+>  }
+>}
+>```
+>***********************************************************
+>**double get_Temperature();**
+>温度データ読み取り専用の関数
+>AnalogInから電圧を読み取ったあと
+>温度データを計算&導出
+>
+>```C++
+>double get_Temperature() {
+>  AnalogIn tmp_sensor(TMP_SENSOR_PIN);
+>  double changed_vol = tmp_sensor * MBED_VOLTAGE;
+>  return changed_vol * 100;
+>}
+>```
+>**********************************************************
+>**double tmp_stopper();**
+>一定の間隔を置いて温度データを更新するための関数
+>stock(温度データ保存用)とcounterを用意して、
+>関数をコールするたびにcountを増やしcountが500を超えたら0に戻す
+>count = 0 ならstockを更新する
+>
+>```C++
+>double tmp_stopper() {
+>  static double stock;
+>  static int count;
+>  if (count++ > 500) count = 0;
+>  if (!count) stock = get_Temperature();
+>  return stock;
 >}
 >```
 
@@ -266,8 +315,6 @@
 ### class sevseg_LEDのメンバ関数
 
 ### その他
-
-## 温度計に関するもの
 
 ## カウンターに関するもの
 

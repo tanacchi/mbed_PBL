@@ -409,7 +409,7 @@
 >***********************************************************
 >**void sevseg_LED::input_inteder_ary();**  
 >桁ごとの数字に対応するON/OFFの並びをconvert_NUMintoARYから参照して  
->二次元配列(inteder_ary[][])に格納すします  
+>二次元配列(inteder_ary[][])に格納します  
 >
 >```C++
 >void sevseg_LED::input_inteder_ary() {
@@ -440,6 +440,98 @@
 >}
 >```
 
-### その他
+### その他の関数
+
+>**double powpow(int a, int b);**  
+>aのb乗を返す関数  
+>split_Numerical_Pos内ではbの部分を1ずつ小さくすることで  
+> 10 → 1 → 0.1 のように変化させています  
+>
+>```C++
+>double powpow(int a, int b) {
+>  double dest = 1;
+>  if (b > 0) for (int i = 0; i < b; i++) dest *= (double)a;
+>  if (b < 0) for (int i = 0; i > b; i--) dest /= (double)a;
+>  return dest;
+>}
+>```
+>***********************************************************
+>**int* convert_NUMintoARY(int element);**  
+>引数に0~9の数字を入れると、それぞれに対応するON/OFFの配列(の先頭アドレス)を返します  
+>0~9以外の数字が入った場合はErr(エラー)を表示  
+>引数に5を入れた場合、  
+>convert_NUMintoARY(5)[0] == ON   
+>convert_NUMintoARY(5)[1] == OFF  
+>convert_NUMintoARY(5)[2] == ON  
+>convert_NUMintoARY(5)[3] == ON  
+>convert_NUMintoARY(5)[4] == OFF  
+>convert_NUMintoARY(5)[5] == ON  
+>convert_NUMintoARY(5)[6] == ON  
+>のようになります  
+>
+>```C++
+>int* convert_NUMintoARY(int element) {
+>  int sevseg_ary[NUM_PATTERN][SEGMENT_NUM] = {
+>    {ON,  ON,  ON,  ON,  ON,  ON , OFF}, // for 0
+>    {OFF, ON,  ON,  OFF, OFF, OFF, OFF}, // for 1
+>    {ON,  ON,  OFF, ON,  ON,  OFF, ON }, // for 2
+>    {ON,  ON,  ON,  ON,  OFF, OFF, ON }, // for 3
+>    {OFF, ON , ON,  OFF, OFF, ON,  ON }, // for 4
+>    {ON,  OFF, ON,  ON,  OFF, ON , ON }, // for 5
+>    {ON,  OFF, ON,  ON,  ON,  ON,  ON }, // for 6
+>    {ON,  ON,  ON,  OFF, OFF, OFF, OFF}, // for 7
+>    {ON,  ON,  ON,  ON,  ON,  ON,  ON }, // for 8
+>    {ON,  ON,  ON,  ON,  OFF, ON,  ON }  // for 9
+>  };
+>  if (element < 0 || 9 < element) Err_message();
+>  return sevseg_ary[element];
+>}
+>```
+>***********************************************************
+>**void digits_init();**  
+>7セグLEDを初期化する関数  
+>すべての桁のdigitに1を代入し、消灯させます  
+>
+>```C++
+>void digits_init() {
+>  for (int i = 0; i < DIGITS_NUM; i++) digit[i] = 1;
+>}
+>```
+>***********************************************************
+>**void mbedLED_init();**  
+>mbedに付いているLEDをすべて消灯し初期化する関数  
+>
+>```C++
+>void mbedLED_init() {
+>  for (int i = 0; i < MBED_LED_NUM; i++) mbed_LED[i] = 0;
+>}
+>```
+>***********************************************************
+>**void output_digit(int out_digit[SEGMENT_NUM]);**  
+>桁ひとつぶんを表示する関数  
+>1桁ぶんのON/OFFの配列を受け取って、a~gに順番に代入します  
+>
+>```C++
+>void output_digit(int out_digit[SEGMENT_NUM]) {
+>  for (int i = 0; i < SEGMENT_NUM; i++) segment[i] = out_digit[i];
+>}
+>```
+>***********************************************************
+>**void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);**  
+>ON/OFFの並びを7セグLEDに出力する関数  
+>二次元配列を受け取って表示する桁を切り替えながら  
+>output_digit, set_digit_pointをコールします  
+>
+>```C++
+>void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
+>  for (int i = 0; i < DIGITS_NUM; i++) {
+>    digits_init();
+>    digit[i] = 0;
+>    output_digit(inteder_array[i]); 
+>    set_digit_point(i);
+>    wait(powpow(0.001));
+>  }
+>}
+>```
 
 ## エラーメッセージに関するもの

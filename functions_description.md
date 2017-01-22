@@ -2,21 +2,20 @@
 
 ## インクルードファイル
 
->今回は mbed用のインクルードファイルのみ
+>今回は mbed用のインクルードファイルのみ  
 >
 >```C++
 >#include "mbed.h"
 >```
 
-## オブジェクト形式マクロ
+## オブジェクト形式マクロ  
 
->記号定数の定義をしています
+>記号定数の定義をしています  
 >これ以降の記述に対して、MBED_VOLTAGE→3.3  SEGMENT_NUM→7 のように  
 >マクロ置換がなされます  
 >
 >```C++
 >#define MBED_VOLTAGE 3.3
->
 >#define ON 1
 >#define OFF 0
 >#define SEGMENT_NUM 7
@@ -46,9 +45,9 @@
 
 ## グローバル変数
 
->どの関数からでも参照できる変数です
->7セグLEDのサンプルコードでa~gやdig1~dig3で宣言されていた変数は
->DigitalOut型の配列として、まとめて扱っています
+>どの関数からでも参照できる変数です  
+>7セグLEDのサンプルコードでa~gやdig1~dig3で宣言されていた変数は  
+>DigitalOut型の配列として、まとめて扱っています  
 >
 >```C++
 >DigitalOut segment[SEGMENT_NUM] = {
@@ -76,6 +75,111 @@
 >
 >DigitalOut digit_point(SEG_POINT);
 >```
+
+## 関数プロトタイプ
+
+>コンパイルエラー等を防ぐために、あらかじめ関数を定義しています  
+>必ず記述しなければならないわけでもないので  
+>そこまで気にする必要はないです  
+>
+>```C++
+>int switch_reader(int ch);
+>int mode_reader();
+>void wait_switch_left();
+>int starter_switch();
+>int mode_switcher();
+>int split_count(int count, int maximam);
+>void Thermometer();
+>double get_Temperature();
+>double tmp_stopper();
+>void Counter();
+>int count_stopper(int current_push);
+>int change_param(int counter);
+>double powpow(int a, int b);
+>int* convert_NUMintoARY(int element);
+>void digits_init();
+>void mbedLED_init();
+>void output_digit(int out_digit[SEGMENT_NUM]);
+>void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
+>void disp_limit_sevseg(int lim);
+>void disp_limit_LED(int lim);
+>void Err_message();
+>```
+
+## main関数
+
+>メイン関数です  
+>プログラムはメイン関数を始めに実行し  
+>メイン関数を軸に処理がなされます  
+>
+>```C++
+>int main() {
+>  while (1) {
+>    digits_init();
+>    mbedLED_init();
+>    
+>    wait_switch_left();
+>    switch (starter_switch()) {
+>    case 1:
+>      Thermometer();
+>      break;
+>    case 2:
+>      Counter();
+>      break;
+>     default:
+>      Err_message();
+>    }
+>  }
+>}
+>```
+
+## スイッチ操作に関するもの
+
+>int switch_reader(int ch);  
+>引数(ch)でスイッチの左(1)or右(0)を指定して  
+>指定されたスイッチが  
+>押されていたら1, 押されていなかったら0を返す  
+>
+>```C++
+>int switch_reader(int ch) {
+>  DigitalIn tact_switch[2] = {
+>    DigitalIn (SWITCH_R),
+>    DigitalIn (SWITCH_L)
+>  };
+>  return tact_switch[ch];
+>}
+>```
+
+>int mode_reader();
+>左右のスイッチの値を受け取って  
+>両方とも押されてない→ 0 0 → 0  
+>右だけ押されている　→ 0 1 → 1  
+>左だけ押されている　→ 1 0 → 2  
+>両方とも押されている→ 1 1 → 3  
+>の値を返し、以後これらをモードの値とする  
+>
+>```C++
+>int mode_reader() {
+>  if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
+>  if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
+>  if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
+>  if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
+>}
+>```
+
+>void wait_switch_left();
+>モード選択時の誤作動を防ぐために  
+>スイッチから一旦手を離してもらう  
+>その後小休止を置いてモード選択に移る  
+>
+>```C++
+>void wait_switch_left() {
+>  while (mode_reader() != 0) ;
+>  wait(powpow(10, -1));
+>}
+>```
+
+## モード選択に関するもの
 
 ## 7セグメントLEDに関するもの
 
@@ -106,8 +210,6 @@
 ### class sevseg_LEDのメンバ関数
 
 ### その他
-
-## モード選択に関するもの
 
 ## 温度計に関するもの
 

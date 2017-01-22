@@ -153,8 +153,8 @@
 >**int mode_reader();**  
 >左右のスイッチの値を受け取って  
 >両方とも押されてない→ 0 0 → 0  
->右だけ押されている　→ 0 1 → 1  
->左だけ押されている　→ 1 0 → 2  
+>右だけ押されている  → 0 1 → 1  
+>左だけ押されている  → 1 0 → 2  
 >両方とも押されている→ 1 1 → 3  
 >の値を返し、以後これらをモードの値とする  
 >
@@ -175,11 +175,67 @@
 >```C++
 >void wait_switch_left() {
 >  while (mode_reader() != 0) ;
->  wait(powpow(10, -1));
+>  wait(0.1);
 >}
 >```
 
 ## モード選択に関するもの
+
+>**int starter_switch();**  
+>モード選択に使う関数  
+>スイッチが押されない限り7セグLEDのイルミネーションを表示し、  
+>何か押されたらループを抜けてその時のモードの値を返す  
+>
+>```C++
+>int starter_switch() {
+>  while (1) {
+>    for (int count = 0; count < powpow(10, 3); count++) {
+>      disp_illumi_sevseg(split_count(count, powpow(10, 3)));
+>      if (mode_reader() != 0) return mode_reader();
+>    }
+>  }
+>}
+>```
+>
+>**int mode_switcher();**  
+>モード切替に使う関数  
+>スイッチが両方とも押されていたらcountを増やしていき  
+>その値に対応してmbedのLEDを点灯させる  
+>スイッチが離された時はcountを0に戻し、LEDを消灯させる  
+>countが750未満なら1, 750以上なら0を返す  
+>これをwhileの条件式内に記述することで  
+>750未満→ループ続行、750以上→ループ脱出となる  
+>
+>```C++
+>int mode_switcher() {
+>  static int count;
+>  if (mode_reader() != 3) {
+>    count = 0;
+>    mbedLED_init();
+>  }
+>  disp_illumi_LED(split_count(count, 750));
+>  return (count++ < 750) ? 1 : 0;
+>}
+>```
+
+>**int split_count(int count, int maximam);**  
+>maximam(上限)を設定し、countがmaximamを5分割したうちどこに位置するのかを返す  
+>例えば maximam = 500 と設定した時、  
+> 0  ≦ count < 100 →　0  
+>100 ≦ count < 200 →　1  
+>200 ≦ count < 300 →　2  
+>300 ≦ count < 400 →　3  
+>400 ≦ count < 500 →　4  
+>を返します  
+>
+>```C++
+>int split_count(int count, int maximam) {
+>  int unit = maximam / WAIT_NUM;
+>  int i;
+>  for (i = 1; (count - unit * i) > 0; i++) ;
+>  return i - 1;
+>}
+>```
 
 ## 7セグメントLEDに関するもの
 

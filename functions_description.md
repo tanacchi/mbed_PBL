@@ -149,7 +149,7 @@
 >  return tact_switch[ch];
 >}
 >```
-
+************************************************************
 >**int mode_reader();**  
 >左右のスイッチの値を受け取って  
 >両方とも押されてない→ 0 0 → 0  
@@ -166,7 +166,7 @@
 >  if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
 >}
 >```
-
+************************************************************
 >**void wait_switch_left();**  
 >モード選択時の誤作動を防ぐために  
 >スイッチから一旦手を離してもらう  
@@ -239,8 +239,8 @@
 
 ## 温度計に関するもの
 
->**void Thermometer();**
->温度計に必要な処理を1セットにまとめたもの
+>**void Thermometer();**  
+>温度計に必要な処理を1セットにまとめたもの  
 >
 >```C++
 >void Thermometer() {
@@ -257,10 +257,10 @@
 >}
 >```
 >***********************************************************
->**double get_Temperature();**
->温度データ読み取り専用の関数
->AnalogInから電圧を読み取ったあと
->温度データを計算&導出
+>**double get_Temperature();**  
+>温度データ読み取り専用の関数  
+>AnalogInから電圧を読み取ったあと  
+>温度データを計算&導出  
 >
 >```C++
 >double get_Temperature() {
@@ -270,11 +270,11 @@
 >}
 >```
 >**********************************************************
->**double tmp_stopper();**
->一定の間隔を置いて温度データを更新するための関数
->stock(温度データ保存用)とcounterを用意して、
->関数をコールするたびにcountを増やしcountが500を超えたら0に戻す
->count = 0 ならstockを更新する
+>**double tmp_stopper();**  
+>一定の間隔を置いて温度データを更新するための関数  
+>stock(温度データ保存用)とcounterを用意して、  
+>関数をコールするたびにcountを増やしcountが500を超えたら0に戻す  
+>count = 0 ならstockを更新する  
 >
 >```C++
 >double tmp_stopper() {
@@ -283,6 +283,62 @@
 >  if (count++ > 500) count = 0;
 >  if (!count) stock = get_Temperature();
 >  return stock;
+>}
+>```
+
+## カウンターに関するもの
+
+>**void Counter();**  
+>カウンターに必要な処理を一式にまとめたもの  
+>
+>```C++
+>void Counter() {
+>  static int param;
+>  sevseg_LED Counter(2);
+>
+>  while (mode_switcher()) {
+>    param = change_param(param);
+>    Counter.set_number(param);
+>    Counter.split_Numerical_Pos();
+>    Counter.input_inteder_ary();
+>    Counter.output_sevseg();
+>  }
+>}
+>```
+>***********************************************************
+>**int count_stopper(int current_push);**  
+>スイッチの状態が変化した瞬間のみモードの値を返す  
+>change_param内のswitch文に導入することで  
+>長押しによるparamの操作が無効となる  
+>
+>```C++
+>int count_stopper(int current_push) {
+>  static int previous_push;
+>  int judge = previous_push - current_push;
+>  previous_push = current_push;
+>  if (!judge) return 0;
+>  else return current_push;
+>}
+>```
+>***********************************************************
+>**int change_param(int counter);**  
+>Counter関数のparamの値を操作する  
+>
+>```C++
+>int change_param(int counter) {
+>  switch (count_stopper(mode_reader())) {
+>  case 1:
+>    counter++;
+>    break;
+>  case 2:
+>    if (counter > 0)
+>      counter--;
+>    break;
+>  case 3:
+>    counter = 0;
+>    break;
+>  }
+>  return counter;
 >}
 >```
 
@@ -314,8 +370,76 @@
 
 ### class sevseg_LEDのメンバ関数
 
-### その他
+>
+>**sevseg_LED::sevseg_LED(int input_head);**  
+>クラスsevseg_LEDのコンストラクタ  
+>sevseg_LED型の変数を定義する際に以下の処理がなされます  
+>引数に先頭の位を入れてheadを設定、それに応じてpoint, taleも定めます  
+>
+>```C++
+>sevseg_LED::sevseg_LED(int input_head) {
+>  head = input_head;
+>  point = head;
+>  tale = head - DIGITS_NUM;
+>}
+>```
+>***********************************************************
+>**void sevseg_LED::set_number(double input_num);**  
+>表示する数値を設定するだけの関数  
+>
+>```C++
+>void sevseg_LED::set_number(double input_num) {
+>  src_number = input_num;
+>}
+>```
+>***********************************************************
+>**void sevseg_LED::split_Numerical_Pos();**  
+>表示する数値(src_number)を桁ごとに分割する関数  
+>桁ごとの数字はint型の配列(splited_num[])に格納されます  
+>
+>```C++
+>void sevseg_LED::split_Numerical_Pos() {
+>  int i, j, k = 0;
+>  for (i = head; i > tale; i--) {
+>    for (j = 0; src_number >= powpow(10, i); j++) src_number -= powpow(10, i);
+>    splited_num[k++] = j;
+>  }
+>}
+>```
+>***********************************************************
+>**void sevseg_LED::input_inteder_ary();**  
+>桁ごとの数字に対応するON/OFFの並びをconvert_NUMintoARYから参照して  
+>二次元配列(inteder_ary[][])に格納すします  
+>
+>```C++
+>void sevseg_LED::input_inteder_ary() {
+>  for (int i = 0; i < DIGITS_NUM; i++)
+>    for (int j = 0; j < SEGMENT_NUM; j++)
+>      inteder_ary[i][j] = convert_NUMintoARY(splited_num[i])[j];
+>}
+>```
+>***********************************************************
+>**void sevseg_LED::output_sevseg();**  
+>以上の処理が完了した二次元配列(inteder_ary)を  
+>output_array(配列表示関数)に代入するだけの関数  
+>
+>```C++
+>void sevseg_LED::output_sevseg() {
+>  output_array(inteder_ary);
+>}
+>```
+>***********************************************************
+>**void sevseg_LED::set_digit_point(int i);**  
+>小数点の操作をする関数です  
+>output_array内で一の位を表示をしている時に小数点を点灯させます  
+>
+>```C++
+>void sevseg_LED::set_digit_point(int i) {
+>if (i == point) digit_point = 1;
+>  else digit_point = 0;
+>}
+>```
 
-## カウンターに関するもの
+### その他
 
 ## エラーメッセージに関するもの

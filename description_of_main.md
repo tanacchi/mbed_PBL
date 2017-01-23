@@ -297,10 +297,10 @@
 >
 >```C++
 >void Thermometer() {
->  double tmp_data;    // 温度データ格納用の変数を定義
->  sevseg_LED tmp(1);  // 数値表示用にsevseg_LED
+>  double tmp_data;    // 温度データ格納用の変数
+>  sevseg_LED tmp(1);  // 数値表示用のsevseg_LED型変数
 >
->  while (mode_switcher()) {  // mode_switcherから返ってくる値が1なら続行
+>  while (mode_switcher()) {  // mode_switcherから返ってくる値が0ならループ脱出
 >    tmp_data = tmp_stopper();  // 温度データを取得・代入
 >    tmp.set_number(tmp_data);  // 表示する数値を設定
 >    tmp.split_Numerical_Pos();  // 桁ごとに分割
@@ -319,9 +319,9 @@
 >
 >```C++
 >double get_Temperature() {
->  AnalogIn tmp_sensor(TMP_SENSOR_PIN);
+>  AnalogIn tmp_sensor(TMP_SENSOR_PIN);  // AnalogIn型変数を定義
 >  double changed_vol = tmp_sensor * MBED_VOLTAGE;
->  return changed_vol * 100;
+>  return changed_vol * 100;  // 温度を計算して返す
 >}
 >```
 >**********************************************************
@@ -335,11 +335,11 @@
 >
 >```C++
 >double tmp_stopper() {
->  static double stock;
->  static int count;
->  if (count++ > 500) count = 0;
->  if (!count) stock = get_Temperature();
->  return stock;
+>  static double stock;  // 温度データ格納用の変数
+>  static int count;  // カウント用の変数
+>  if (count++ > 500) count = 0;  // countを1つ増やし、500より大きければ0に戻す
+>  if (!count) stock = get_Temperature();  // countが0なら温度データを更新
+>  return stock;  // 温度データを返す
 >}
 >```
 
@@ -351,15 +351,15 @@
 >カウンターに必要な処理を一式にまとめたもの  
 >```C++
 >void Counter() {
->  static int param;
->  sevseg_LED Counter(2);
+>  static int param;  // 操作するパラメータ
+>  sevseg_LED Counter(2);  // 数値表示用のsevseg_LED型変数
 >
->  while (mode_switcher()) {
->    param = change_param(param);
->    Counter.set_number(param);
->    Counter.split_Numerical_Pos();
->    Counter.input_inteder_ary();
->    Counter.output_sevseg();
+>  while (mode_switcher()) {  // mode_switcherから返ってくる値が0ならループ脱出
+>    param = change_param(param);  // パラメータを操作する
+>    Counter.set_number(param);  // 表示する数値を設定
+>    Counter.split_Numerical_Pos();  // 桁ごとに分割
+>    Counter.input_inteder_ary();  // 数字ごとの配列を参照・代入
+>    Counter.output_sevseg();  // 7セグLEDに表示
 >  }
 >}
 >```
@@ -372,12 +372,12 @@
 >長押しによるparamの操作が無効となる  
 >
 >```C++
->int count_stopper(int current_push) {
->  static int previous_push;
->  int judge = previous_push - current_push;
->  previous_push = current_push;
->  if (!judge) return 0;
->  else return current_push;
+>int count_stopper(int current_push) {  // 引数として現在のスイッチの値を取得
+>  static int previous_push; // 直前のスイッチの値を格納するための変数
+>  int judge = previous_push - current_push; // 直前のスイッチの値と現在のスイッチの値を比較
+>  previous_push = current_push;  // 直前のスイッチの値を現在のものに更新
+>  if (!judge) return 0; // 値の差が0 = スイッチに変化がなかった場合は0を返す
+>  else return current_push;  // 現在のスイッチの値を返す
 >}
 >```
 >***********************************************************
@@ -388,7 +388,7 @@
 >
 >```C++
 >int change_param(int counter) {
->  switch (count_stopper(mode_reader())) {
+>  switch (count_stopper(mode_reader())) {  // スイッチ 
 >  case 1:
 >    counter++;
 >    break;

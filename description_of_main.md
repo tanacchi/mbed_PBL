@@ -117,8 +117,8 @@
 >  while (1) {
 >    digits_init();
 >    mbedLED_init();
->    
 >    wait_switch_left();
+>
 >    switch (starter_switch()) {
 >    case 1:
 >      Thermometer();
@@ -234,6 +234,40 @@
 >  int i;
 >  for (i = 1; (count - unit * i) > 0; i++) ;
 >  return i - 1;
+>}
+>```
+>***********************************************************
+>void disp_illumi_sevseg(int lim);  
+>モード選択時の7セグLEDイルミネーションを表示する関数  
+>独自の二次元配列を用意し、また0~4の引数を受け取って  
+>3桁同時に5パターンの表示を行います  
+>どのパターンを表示するかは引数により決めらます  
+>
+>```C++
+>void disp_illumi_sevseg(int lim) {
+>  int wait_array[WAIT_NUM][SEGMENT_NUM] = {
+>    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
+>    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
+>    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
+>    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
+>    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
+>  };
+>  for (int i = 0; i < DIGITS_NUM; i++) {
+>    digits_init();
+>    digit[i] = 0;
+>    output_digit(wait_array[lim]);
+>    wait(0.001);
+>  }
+>}
+>```
+>***********************************************************
+>void disp_illumi_LED(int lim);  
+>モード変更時のmbed_LEDのイルミネーションを表示する関数  
+>引数(0~4)によって何個目まで点灯させるかが決定されます  
+>
+>```C++
+>void disp_illumi_LED(int lim) {
+>  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
 >}
 >```
 
@@ -535,3 +569,17 @@
 >```
 
 ## エラーメッセージに関するもの
+
+>**void Err_message();**  
+>独自の二次元配列を用意してErr(エラー)を表示します  
+>
+>```C++
+>void Err_message() {
+>  int error_array[DIGITS_NUM][SEGMENT_NUM] = {
+>    {ON,  OFF, OFF, ON,  ON, ON,  ON},
+>    {OFF, OFF, OFF, OFF, ON, OFF, ON},
+>    {OFF, OFF, OFF, OFF, ON, OFF, ON}
+>  };
+>  while (mode_switcher()) output_array(error_array);
+>}
+>```

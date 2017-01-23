@@ -114,20 +114,20 @@
 >
 >```C++
 >int main() {
->  while (1) {
->    digits_init();
->    mbedLED_init();
->    wait_switch_left();
+>  while (1) {     // whileの内を無限ループ
+>    digits_init();     // 7セグLEDを初期化
+>    mbedLED_init();     // mbed_LEDを初期化
+>    wait_switch_left();     // スイッチが離されるまで待つ
 >
->    switch (starter_switch()) {
->    case 1:
->      Thermometer();
+>    switch (starter_switch()) {     // モードを取得
+>    case 1:         // モード1
+>      Thermometer();   // 温度計
 >      break;
->    case 2:
->      Counter();
+>    case 2:         // モード2
+>      Counter();       // カウンター
 >      break;
->     default:
->      Err_message();
+>     default:       // それ以外なら
+>      Err_message();  // エラーを表示
 >    }
 >  }
 >}

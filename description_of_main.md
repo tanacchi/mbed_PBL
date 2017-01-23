@@ -120,11 +120,11 @@
 >    wait_switch_left();     // スイッチが離されるまで待つ
 >
 >    switch (starter_switch()) {     // モードを取得
->    case 1:         // モード1
->      Thermometer();   // 温度計
+>    case 1:         // モード1なら
+>      Thermometer();       // 温度計
 >      break;
->    case 2:         // モード2
->      Counter();       // カウンター
+>    case 2:         // モード2なら
+>      Counter();           // カウンター
 >      break;
 >     default:       // それ以外なら
 >      Err_message();  // エラーを表示
@@ -146,10 +146,10 @@
 >```C++
 >int switch_reader(int ch) {
 >  DigitalIn tact_switch[2] = {
->    DigitalIn (SWITCH_R),
->    DigitalIn (SWITCH_L)
+>    DigitalIn (SWITCH_R),  // tact_switch[0] → 右のスイッチの値
+>    DigitalIn (SWITCH_L)   // tact_switch[1] → 左のスイッチの値
 >  };
->  return tact_switch[ch];
+>  return tact_switch[ch];  // 引数で指定されたスイッチの値を返す
 >}
 >```
 ************************************************************
@@ -165,10 +165,10 @@
 >
 >```C++
 >int mode_reader() {
->  if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
->  if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
->  if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
->  if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
+>  if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;  // 0 0 → 0を返す
+>  if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;  // 0 1 → 1を返す
+>  if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;  // 1 0 → 2を返す
+>  if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;  // 1 1 → 3を返す
 >}
 >```
 ************************************************************
@@ -181,8 +181,8 @@
 >
 >```C++
 >void wait_switch_left() {
->  while (mode_reader() != 0) ;
->  wait(0.1);
+>  while (mode_reader() != 0) ; // スイッチがフリーになるまで何もしない( ";" は何もしないの意味)
+>  wait(0.1);  // 一瞬待つ
 >}
 >```
 
@@ -198,9 +198,9 @@
 >```C++
 >int starter_switch() {
 >  while (1) {
->    for (int count = 0; count < powpow(10, 3); count++) {
->      disp_illumi_sevseg(split_count(count, powpow(10, 3)));
->      if (mode_reader() != 0) return mode_reader();
+>    for (int count = 0; count < powpow(10, 3); count++) {  // countが1000になるまで繰り返す
+>      disp_illumi_sevseg(split_count(count, powpow(10, 3)));  // countの値によってディスプレイのパターンを変える
+>      if (mode_reader() != 0) return mode_reader();  // mode_readerから0以外の値が返ってきたらループを抜けてモードの値を返す
 >    }
 >  }
 >}
@@ -219,14 +219,14 @@
 >
 >```C++
 >int mode_switcher() {
->  static int count;
->  if (mode_reader() != 3) {
->    count = 0;
->    mbedLED_init();
+>  static int count;  // カウント用の変数を定義(値は保持される)
+>  if (mode_reader() != 3) {　// 両方押されていないなら
+>    count = 0;       // countを0に戻して
+>    mbedLED_init();  // mbed_LEDを初期化
 >  }
->  disp_illumi_LED(split_count(count, 750));
->  return (count++ < 750) ? 1 : 0;
->}
+>  disp_illumi_LED(split_count(count, 750));  // countの値によってmbed_LEDを点灯させる
+>  return (count++ < 750) ? 1 : 0;  // countを1ずつ増やしていき、
+>}　　　　　　　　　　　　　　　　　// 750未満なら1、750以上なら0
 >```
 >***********************************************************
 >```C++ 
@@ -243,10 +243,10 @@
 >
 >```C++
 >int split_count(int count, int maximam) {
->  int unit = maximam / WAIT_NUM;
+>  int unit = maximam / WAIT_NUM; // maximamを5で割った値を1単位(unit)とする
 >  int i;
->  for (i = 1; (count - unit * i) > 0; i++) ;
->  return i - 1;
+>  for (i = 1; (count - unit * i) > 0; i++) ;  // countにunitが何個分入るか判断
+>  return i - 1;  // 何個分入るかを返す
 >}
 >```
 >***********************************************************
@@ -260,18 +260,18 @@
 >
 >```C++
 >void disp_illumi_sevseg(int lim) {
->  int wait_array[WAIT_NUM][SEGMENT_NUM] = {
->    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
+>  int wait_array[WAIT_NUM][SEGMENT_NUM] = { // イルミネーション用の配列
+>    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},  // 5パターン×7セグメント
 >    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
 >    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
 >    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
 >    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
 >  };
->  for (int i = 0; i < DIGITS_NUM; i++) {
->    digits_init();
->    digit[i] = 0;
->    output_digit(wait_array[lim]);
->    wait(0.001);
+>  for (int i = 0; i < DIGITS_NUM; i++) {  // 3桁分繰り返す 
+>    digits_init();  // 7セグLEDを初期化
+>    digit[i] = 0;   // 表示する桁の指定(カソード側の電圧をLOWにする)
+>    output_digit(wait_array[lim]);  // 1桁分表示
+>    wait(0.001);  // 一瞬待つ
 >  }
 >}
 >```
@@ -284,7 +284,7 @@
 >
 >```C++
 >void disp_illumi_LED(int lim) {
->  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
+>  for (int i = 0; i < lim; i++) mbed_LED[i] = 1;  // lim番目までmbed_LEDを点灯
 >}
 >```
 
@@ -297,15 +297,15 @@
 >
 >```C++
 >void Thermometer() {
->  double tmp_data;
->  sevseg_LED tmp(1);
+>  double tmp_data;    // 温度データ格納用の変数を定義
+>  sevseg_LED tmp(1);  // 数値表示用にsevseg_LED
 >
->  while (mode_switcher()) {
->    tmp_data = tmp_stopper();
->    tmp.set_number(tmp_data);
->    tmp.split_Numerical_Pos();
->    tmp.input_inteder_ary();
->    tmp.output_sevseg();
+>  while (mode_switcher()) {  // mode_switcherから返ってくる値が1なら続行
+>    tmp_data = tmp_stopper();  // 温度データを取得・代入
+>    tmp.set_number(tmp_data);  // 表示する数値を設定
+>    tmp.split_Numerical_Pos();  // 桁ごとに分割
+>    tmp.input_inteder_ary();  // 数字ごとの配列を参照・代入
+>    tmp.output_sevseg();  // 7セグLEDに表示
 >  }
 >}
 >```

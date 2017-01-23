@@ -5,7 +5,6 @@
 // ------------------------- Definition ----------------------------------------
 
 #define MBED_VOLTAGE 3.3
-
 #define ON 1
 #define OFF 0
 #define SEGMENT_NUM 7
@@ -97,8 +96,8 @@ void digits_init();
 void mbedLED_init();
 void output_digit(int out_digit[SEGMENT_NUM]);
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
-void disp_limit_sevseg(int lim);
-void disp_limit_LED(int lim);
+void disp_illumi_sevseg(int lim);
+void disp_illumi_LED(int lim);
 void Err_message();
 
 // ------------------------- Main function -------------------------------------
@@ -107,8 +106,8 @@ int main() {
   while (1) {
     digits_init();
     mbedLED_init();
-    
     wait_switch_left();
+
     switch (starter_switch()) {
     case 1:
       Thermometer();
@@ -141,7 +140,7 @@ int mode_reader() {
 
 void wait_switch_left() {
   while (mode_reader() != 0) ;
-  wait(powpow(10, -1));
+  wait(0.1);
 }
 
 // ------------------------- Mode select ---------------------------------------
@@ -149,7 +148,7 @@ void wait_switch_left() {
 int starter_switch() {
   while (1) {
     for (int count = 0; count < powpow(10, 3); count++) {
-      disp_limit_sevseg(split_count(count, powpow(10, 3)));
+      disp_illumi_sevseg(split_count(count, powpow(10, 3)));
       if (mode_reader() != 0) return mode_reader();
     }
   }
@@ -161,8 +160,8 @@ int mode_switcher() {
     count = 0;
     mbedLED_init();
   }
-  disp_limit_LED(split_count(count, 750));
-  return (count++ < 500) ? 1 : 0;
+  disp_illumi_LED(split_count(count, 750));
+  return (count++ < 750) ? 1 : 0;
 }
 
 int split_count(int count, int maximam) {
@@ -172,15 +171,35 @@ int split_count(int count, int maximam) {
   return i - 1;
 }
 
+void disp_illumi_sevseg(int lim) {
+  int wait_array[WAIT_NUM][SEGMENT_NUM] = {
+    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
+    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
+    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
+    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
+    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
+  };
+  for (int i = 0; i < DIGITS_NUM; i++) {
+    digits_init();
+    digit[i] = 0;
+    output_digit(wait_array[lim]);
+    wait(0.001);
+  }
+}
+
+void disp_illumi_LED(int lim) {
+  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
+}
+
 // -------------------------- Thermometer --------------------------------------
 
 void Thermometer() { // shorter
-  double data = get_Temperature();
+  double tmp_data;
   sevseg_LED tmp(1);
 
   while (mode_switcher()) {
-    data = tmp_stopper();
-    tmp.set_number(data);
+    tmp_data = tmp_stopper();
+    tmp.set_number(tmp_data);
     tmp.split_Numerical_Pos();
     tmp.input_inteder_ary();
     tmp.output_sevseg();
@@ -189,15 +208,15 @@ void Thermometer() { // shorter
 
 double get_Temperature() {
   AnalogIn tmp_sensor(TMP_SENSOR_PIN);
-  double replyed_vol = tmp_sensor * MBED_VOLTAGE;
-  return replyed_vol * 100;
+  double changed_vol = tmp_sensor * MBED_VOLTAGE;
+  return changed_vol * 100;
 }
 
 double tmp_stopper() { // meke shorter!
   static double stock;
-  static int counter;
-  if (counter++ > 5 * powpow(10, 2)) counter = 0;
-  if (!counter) stock = get_Temperature();
+  static int count;
+  if (count++ > 500) count = 0;
+  if (!count) stock = get_Temperature();
   return stock;
 }
 
@@ -323,26 +342,6 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
   }
 }
 // -------------------------- Some extra code ----------------------------------
-
-void disp_limit_sevseg(int lim) {
-  int wait_array[WAIT_NUM][SEGMENT_NUM] = {
-    {OFF, OFF, OFF, ON,  OFF, OFF, OFF},
-    {OFF, OFF, ON,  OFF, ON,  OFF, OFF},
-    {OFF, OFF, OFF, OFF, OFF, OFF, ON },
-    {OFF, ON,  OFF, OFF, OFF, ON,  OFF},
-    {ON,  OFF, OFF, OFF, OFF, OFF, OFF}
-  };
-  for (int i = 0; i < DIGITS_NUM; i++) {
-    digits_init();
-    digit[i] = 0;
-    output_digit(wait_array[lim]);
-    wait(powpow(0.001);
-  }
-}
-
-void disp_limit_LED(int lim) {
-  for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
-}
 
 void Err_message() {
   int error_array[DIGITS_NUM][SEGMENT_NUM] = {

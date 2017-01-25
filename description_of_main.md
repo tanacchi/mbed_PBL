@@ -388,19 +388,19 @@
 >
 >```C++
 >int change_param(int counter) {
->  switch (count_stopper(mode_reader())) {  // スイッチ 
->  case 1:
->    counter++;
+>  switch (count_stopper(mode_reader())) {  // スイッチの値取得 
+>  case 1:  // スイッチの値が1のとき
+>    counter++;  // counterを1やす 
 >    break;
->  case 2:
->    if (counter > 0)
->      counter--;
+>  case 2:  // スイッチの値が2で
+>    if (counter > 0)  // counterが0以上なら
+>      counter--;  // counterを1減らす
 >    break;
->  case 3:
->    counter = 0;
+>  case 3:  // スイッチの値が3のとき
+>    counter = 0;  // counterを0にする
 >    break;
 >  }
->  return counter;
+>  return counter;  // counterの値を返す
 >}
 >```
 
@@ -414,19 +414,19 @@
 >
 >```C++
 >class sevseg_LED {
->  int head, tale;   // 数値の先頭の桁、最後の桁をクラス宣言時に設定します
->  int point;   //　
->  double src_number;   //
->  int splited_num[DIGITS_NUM];   //
->  int inteder_ary[DIGITS_NUM][SEGMENT_NUM];   //
+>  int head, tale;   // 数値の先頭の桁、最後の桁をクラス宣言時に設定
+>  int point;   // 数点の位置をクラス宣言時に設定
+>  double src_number;   // 表示する数値を格納
+>  int splited_num[DIGITS_NUM]; 　// 分割済みの数字の並び(配列)を格納
+>  int inteder_ary[DIGITS_NUM][SEGMENT_NUM];   // 数字それぞれにON/OFFを対応させた二次元配列を格納
 >public:
->  sevseg_LED(int head);
->  void set_number(double input_num);
->  void split_Numerical_Pos();
->  void input_inteder_ary();
->  void output_console();
->  void output_sevseg();
->  void set_digit_point(int i);
+>  sevseg_LED(int head);  // コンストラクタ
+>  void set_number(double input_num);  // 数値を設定
+>  void split_Numerical_Pos();  // 桁ごとに分割
+>  void input_inteder_ary();  // ON/OFFの並びを対応させる
+>  void output_console();  // テスト用関数 説明等は割愛
+>  void output_sevseg();  // 7セグLEDに出力 
+>  void set_digit_point(int i);  // 小数点をつける
 >};
 >```
 
@@ -530,7 +530,9 @@
 >}
 >```
 >***********************************************************
->```C++ int* convert_NUMintoARY(int element); ```  
+>```C++
+>int* convert_NUMintoARY(int element);
+>```  
 >引数に0~9の数字を入れると、それぞれに対応するON/OFFの配列(の先頭アドレス)を返します  
 >0~9以外の数字が入った場合はErr(エラー)を表示  
 >引数に5を入れた場合、  
@@ -562,7 +564,9 @@
 >}
 >```
 >***********************************************************
->```C++ void digits_init(); ```  
+>```C++
+>void digits_init();
+>```  
 >7セグLEDを初期化する関数  
 >すべての桁のdigitに1を代入し、消灯させます  
 >
@@ -572,7 +576,9 @@
 >}
 >```
 >***********************************************************
->```C++ void mbedLED_init(); ```  
+>```C++
+>void mbedLED_init();
+>```  
 >mbedに付いているLEDをすべて消灯し初期化する関数  
 >
 >```C++
@@ -591,7 +597,9 @@
 >}
 >```
 >***********************************************************
->```C++ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]); ```  
+>```C++
+>void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
+>```  
 >ON/OFFの並びを7セグLEDに出力する関数  
 >二次元配列を受け取って表示する桁を切り替えながら  
 >output_digit, set_digit_pointをコールします  

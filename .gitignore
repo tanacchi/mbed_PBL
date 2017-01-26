@@ -11,4 +11,4 @@ Test/*test*
 
 *.out
 
-!sourse_genkou.md
+sourse_genkou.md

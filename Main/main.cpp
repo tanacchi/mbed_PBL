@@ -73,7 +73,6 @@ public:
   void input_inteder_ary();
   void output_console();
   void output_sevseg();
-  void set_digit_point(int i);
 };
 
 // ------------------------- Function prototype --------------------------------
@@ -289,7 +288,7 @@ void sevseg_LED::output_sevseg() {
   output_array(inteder_ary);
 }
 
-void sevseg_LED::set_digit_point(int i) {
+void set_digit_point(int i) {
   if (i == point) digit_point = 1;
   else digit_point = 0;
 }
@@ -337,8 +336,7 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
     digits_init();
     digit[i] = 0;
     output_digit(inteder_array[i]); 
-    set_digit_point(i);
-    wait(powpow(0.001));
+    wait(0.001);
   }
 }
 // -------------------------- Some extra code ----------------------------------

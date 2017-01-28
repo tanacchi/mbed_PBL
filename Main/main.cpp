@@ -72,7 +72,8 @@ public:
   void split_Numerical_Pos();
   void input_inteder_ary();
   void output_console();
-  void output_sevseg();
+  int show_digit_point();
+  void output_sevseg(sevseg_LED value);
 };
 
 // ------------------------- Function prototype --------------------------------
@@ -98,6 +99,8 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
 void disp_illumi_sevseg(int lim);
 void disp_illumi_LED(int lim);
 void Err_message();
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], sevseg_LED value);
 
 // ------------------------- Main function -------------------------------------
 
@@ -201,7 +204,7 @@ void Thermometer() { // shorter
     tmp.set_number(tmp_data);
     tmp.split_Numerical_Pos();
     tmp.input_inteder_ary();
-    tmp.output_sevseg();
+    tmp.output_sevseg(tmp);
   }
 }
 
@@ -214,8 +217,8 @@ double get_Temperature() {
 double tmp_stopper() { // meke shorter!
   static double stock;
   static int count;
-  if (count++ > 500) count = 0;
-  if (!count) stock = get_Temperature();
+  if (count > 500) count = 0;
+  if (!count++) stock = get_Temperature();
   return stock;
 }
 
@@ -230,7 +233,7 @@ void Counter() {
     Counter.set_number(param);
     Counter.split_Numerical_Pos();
     Counter.input_inteder_ary();
-    Counter.output_sevseg();
+    Counter.output_sevseg(Counter);
   }
 }
 
@@ -284,13 +287,12 @@ void sevseg_LED::input_inteder_ary() {
       inteder_ary[i][j] = convert_NUMintoARY(splited_num[i])[j];
 }
 
-void sevseg_LED::output_sevseg() {
-  output_array(inteder_ary);
+int sevseg_LED::show_digit_point() {
+  return point;
 }
 
-void set_digit_point(int i) {
-  if (i == point) digit_point = 1;
-  else digit_point = 0;
+void sevseg_LED::output_sevseg(sevseg_LED value) {
+  output_array(inteder_ary, value);
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
@@ -320,6 +322,7 @@ int* convert_NUMintoARY(int element) {
 }
 
 void digits_init() {
+  digit_point = 0;
   for (int i = 0; i < DIGITS_NUM; i++) digit[i] = 1;
 }
 
@@ -336,6 +339,17 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
     digits_init();
     digit[i] = 0;
     output_digit(inteder_array[i]); 
+    wait(0.001);
+  }
+}
+
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], sevseg_LED value) {
+  for (int i = 0; i < DIGITS_NUM; i++) {
+    digits_init();
+    digit[i] = 0;
+    output_digit(inteder_array[i]);
+    if (value.show_digit_point() == i) digit_point = 1;
+    else digit_point = 0;
     wait(0.001);
   }
 }

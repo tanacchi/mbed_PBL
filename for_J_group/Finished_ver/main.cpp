@@ -1,5 +1,4 @@
 #include "mbed.h"
-#include <time.h>
 
 #define MBED_VOLTAGE 3.3
 
@@ -56,7 +55,7 @@ public:
 };
 
 void sevseg_Clock();
-int get_time();
+int get_time(int count);
 int powpow(int a, int b);
 int* convert_NUMintoARY(int element);
 void digits_init();
@@ -66,15 +65,14 @@ void Err_message();
 
 int main() {
   sevseg_Clock();
-  Err_message();
   return 0;
 }
 
 void sevseg_Clock() {
-  int data;
+  int data = 180;
   sevseg_LED time(3);
   while (1){
-    data = get_time();
+    data = get_time(data);
     time.set_number(data);
     time.split_Numerical_Pos();
     time.input_inteder_ary();
@@ -82,16 +80,11 @@ void sevseg_Clock() {
   }
 }
 
-int get_time() {
-  struct tm tm;
-  time_t t = time(NULL);
-  int hour, minute;
-  
-  localtime_r(&t, &tm);
-  hour = tm.tm_hour;
-  minute = tm.tm_min;
-
-  return hour*100 + minute;
+int get_time(int param) {
+  static int count;
+  if (count++ > 500) count = 0;
+  if (count) param--;
+  return param;
 }
 
 sevseg_LED::sevseg_LED(int input_head) {

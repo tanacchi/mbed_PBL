@@ -73,7 +73,7 @@ public:
   void input_inteder_ary();
   void output_console();
   int show_digit_point();
-  void output_sevseg(sevseg_LED value);
+  void output_sevseg(int pos);
 };
 
 // ------------------------- Function prototype --------------------------------
@@ -100,7 +100,7 @@ void disp_illumi_sevseg(int lim);
 void disp_illumi_LED(int lim);
 void Err_message();
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
-void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], sevseg_LED value);
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], int pos);
 
 // ------------------------- Main function -------------------------------------
 
@@ -195,7 +195,7 @@ void disp_illumi_LED(int lim) {
 
 // -------------------------- Thermometer --------------------------------------
 
-void Thermometer() { // shorter
+void Thermometer() {
   double tmp_data;
   sevseg_LED tmp(1);
 
@@ -204,7 +204,7 @@ void Thermometer() { // shorter
     tmp.set_number(tmp_data);
     tmp.split_Numerical_Pos();
     tmp.input_inteder_ary();
-    tmp.output_sevseg(tmp);
+    tmp.output_sevseg(tmp.show_digit_point());
   }
 }
 
@@ -233,7 +233,7 @@ void Counter() {
     Counter.set_number(param);
     Counter.split_Numerical_Pos();
     Counter.input_inteder_ary();
-    Counter.output_sevseg(Counter);
+    Counter.output_sevseg(Counter.show_digit_point());
   }
 }
 
@@ -291,8 +291,8 @@ int sevseg_LED::show_digit_point() {
   return point;
 }
 
-void sevseg_LED::output_sevseg(sevseg_LED value) {
-  output_array(inteder_ary, value);
+void sevseg_LED::output_sevseg(int pos) {
+  output_array(inteder_ary, pos);
 }
 
 // -------------------------- Output 7 segment LED (other function) ------------
@@ -343,16 +343,17 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]) {
   }
 }
 
-void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], sevseg_LED value) {
+void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], int pos) {
   for (int i = 0; i < DIGITS_NUM; i++) {
     digits_init();
     digit[i] = 0;
     output_digit(inteder_array[i]);
-    if (value.show_digit_point() == i) digit_point = 1;
+    if (pos == i) digit_point = 1;
     else digit_point = 0;
     wait(0.001);
   }
 }
+
 // -------------------------- Some extra code ----------------------------------
 
 void Err_message() {

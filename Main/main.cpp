@@ -1,8 +1,4 @@
-// ------------------------- Include files -------------------------------------
-
 #include "mbed.h"
-
-// ------------------------- Definition ----------------------------------------
 
 #define MBED_VOLTAGE 3.3
 #define ON 1
@@ -31,7 +27,13 @@
 #define DIG_2_PIN p22
 #define DIG_3_PIN p23
 
-// ------------------------- Global variable -----------------------------------
+enum Mode {
+  INIT,
+  MODE_SELECT,
+  MODE_SWITCHER,
+  THERMOMETER,
+  COUNTER
+};
 
 DigitalOut segment[SEGMENT_NUM] = {
   DigitalOut (SEGMENT_A),
@@ -58,8 +60,6 @@ DigitalOut mbed_LED[MBED_LED_NUM] = {
 
 DigitalOut digit_point(SEG_POINT);
 
-// ------------------------- 7 segment LED class -------------------------------
-
 class sevseg_LED {
   int head, tale;
   int point;
@@ -76,9 +76,7 @@ public:
   void output_sevseg(int pos);
 };
 
-// ------------------------- Function prototype --------------------------------
-
-int switch_reader(int ch);
+bool is_pushed(int ch);
 int mode_reader();
 void wait_switch_left();
 int starter_switch();
@@ -102,31 +100,48 @@ void Err_message();
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], int pos);
 
-// ------------------------- Main function -------------------------------------
-
 int main() {
+  
+  sevseg_LED tmp(1), count(2);
+  Mode mode;
+  
   while (1) {
-    digits_init();
-    mbedLED_init();
-    wait_switch_left();
-
-    switch (starter_switch()) {
-    case 1:
-      Thermometer();
+    switch (mode){
+    case INIT:
+      mode = task_init();
       break;
-    case 2:
-      Counter();
+    case MODE_SELECT:
+      mode = task_select;
       break;
-    default:
-      Err_message();
+    case MODE_SWITCHER:
+      mode = task_switcher();
+    case THERMOMETER:
+      mode = task_thermo();
+      break;
+    case COUNTER:
+      mode = task_count();
+      break;
     }
+    
+    // digits_init();
+    // mbedLED_init();
+    // wait_switch_left();
+
+    // switch (starter_switch()) {
+    // case 1:
+    //   Thermometer();
+    //   break;
+    // case 2:
+    //   Counter();
+    //   break;
+    // default:
+    //   Err_message();
+    // }
   }
 }
 
-// ------------------------- Switch code --------------------------------------
-
-int switch_reader(int ch) {
-  DigitalIn tact_switch[2] = {
+bool is_pushed(int ch) {
+  static DigitalIn tact_switch[2] = {
     DigitalIn (SWITCH_R),
     DigitalIn (SWITCH_L)
   };
@@ -134,18 +149,14 @@ int switch_reader(int ch) {
 }
 
 int mode_reader() {
-  if (switch_reader(0) == 0 && switch_reader(1) == 0) return 0;
-  if (switch_reader(0) == 0 && switch_reader(1) == 1) return 1;
-  if (switch_reader(0) == 1 && switch_reader(1) == 0) return 2;
-  if (switch_reader(0) == 1 && switch_reader(1) == 1) return 3;
+  int left_switch = is_pushed(0), int right_switch = is_pushed(1);
+  return (left_switch << 1) | right_switch;
 }
 
 void wait_switch_left() {
   while (mode_reader() != 0) ;
   wait(0.1);
 }
-
-// ------------------------- Mode select ---------------------------------------
 
 int starter_switch() {
   while (1) {
@@ -193,8 +204,6 @@ void disp_illumi_LED(int lim) {
   for (int i = 0; i < lim; i++) mbed_LED[i] = 1; 
 }
 
-// -------------------------- Thermometer --------------------------------------
-
 void Thermometer() {
   double tmp_data;
   sevseg_LED tmp(1);
@@ -221,8 +230,6 @@ double tmp_stopper() { // meke shorter!
   if (!count++) stock = get_Temperature();
   return stock;
 }
-
-// -------------------------- Counter ---------------------------------------
 
 void Counter() {
   static int param;
@@ -261,8 +268,6 @@ int change_param(int counter) {
   return counter;
 }
 
-// ------------------------- Output 7 segment LED (member function) ------------
-
 sevseg_LED::sevseg_LED(int input_head) {
   head = input_head;
   point = head;
@@ -294,8 +299,6 @@ int sevseg_LED::show_digit_point() {
 void sevseg_LED::output_sevseg(int pos) {
   output_array(inteder_ary, pos);
 }
-
-// -------------------------- Output 7 segment LED (other function) ------------
 
 double powpow(int a, int b) {
   double dest = 1;
@@ -353,8 +356,6 @@ void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], int pos) {
     wait(0.001);
   }
 }
-
-// -------------------------- Some extra code ----------------------------------
 
 void Err_message() {
   int error_array[DIGITS_NUM][SEGMENT_NUM] = {

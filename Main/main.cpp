@@ -1,3 +1,21 @@
+/*
+
+INIT (once)
+MODE_SELECT
+THERMO
+COUNT
+
+main
+/ counter
+
+
+class thermo
+/class sevseg
+
+class count
+/class sevseg 
+
+ */
 #include "mbed.h"
 
 #define MBED_VOLTAGE 3.3
@@ -36,26 +54,21 @@ enum Mode {
 };
 
 DigitalOut segment[SEGMENT_NUM] = {
-  DigitalOut (SEGMENT_A),
-  DigitalOut (SEGMENT_B),
-  DigitalOut (SEGMENT_C),
-  DigitalOut (SEGMENT_D),
-  DigitalOut (SEGMENT_E),
-  DigitalOut (SEGMENT_F),
-  DigitalOut (SEGMENT_G)
+  SEGMENT_A,
+  SEGMENT_B,
+  SEGMENT_C,
+  SEGMENT_D,
+  SEGMENT_E,
+  SEGMENT_F,
+  SEGMENT_G
 };
 
 DigitalOut digit[DIGITS_NUM] = {
-  DigitalOut (DIG_1_PIN),
-  DigitalOut (DIG_2_PIN),
-  DigitalOut (DIG_3_PIN)
+  DIG_1_PIN, DIG_2_PIN, DIG_3_PIN
 };
 
 DigitalOut mbed_LED[MBED_LED_NUM] = {
-  DigitalOut (LED1),
-  DigitalOut (LED2),
-  DigitalOut (LED3),
-  DigitalOut (LED4)
+  LED1, LED2, LED3, LED4
 };
 
 DigitalOut digit_point(SEG_POINT);

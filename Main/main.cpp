@@ -1,21 +1,3 @@
-/*
-
-INIT (once)
-MODE_SELECT
-THERMO
-COUNT
-
-main
-/ counter
-
-
-class thermo
-/class sevseg
-
-class count
-/class sevseg 
-
- */
 #include "mbed.h"
 
 #define MBED_VOLTAGE 3.3
@@ -90,7 +72,7 @@ public:
 };
 
 bool is_pushed(int ch);
-int mode_reader();
+int get_switch();
 void wait_switch_left();
 int starter_switch();
 int mode_switcher();
@@ -113,10 +95,24 @@ void Err_message();
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM]);
 void output_array(int inteder_array[DIGITS_NUM][SEGMENT_NUM], int pos);
 
+Mode task_init() {
+  digits_init();
+  mbedLED_init();
+  return (!get_switch()) ? MODE_INIT : MODE_SELECT;
+}
+
+Mode task_select() {
+  switch (get_switch()) {
+  case 1:  return THERMOMETER;
+  case 2:  return COUNTER;
+  default: return MODE_SELECT;
+  }
+}
+
 int main() {
   
   sevseg_LED tmp(1), count(2);
-  Mode mode;
+  Mode mode = INIT;
   
   while (1) {
     switch (mode){
@@ -161,13 +157,13 @@ bool is_pushed(int ch) {
   return tact_switch[ch];
 }
 
-int mode_reader() {
+int get_switch() {
   int left_switch = is_pushed(0), int right_switch = is_pushed(1);
   return (left_switch << 1) | right_switch;
 }
 
 void wait_switch_left() {
-  while (mode_reader() != 0) ;
+  while (get_switch() != 0) ;
   wait(0.1);
 }
 
@@ -175,14 +171,14 @@ int starter_switch() {
   while (1) {
     for (int count = 0; count < powpow(10, 3); count++) {
       disp_illumi_sevseg(split_count(count, powpow(10, 3)));
-      if (mode_reader() != 0) return mode_reader();
+      if (get_switch() != 0) return get_switch();
     }
   }
 }
 
 int mode_switcher() {
   static int count;
-  if (mode_reader() != 3) {
+  if (get_switch() != 3) {
     count = 0;
     mbedLED_init();
   }
@@ -266,7 +262,7 @@ int count_stopper(int current_push) {
 }
 
 int change_param(int counter) {
-  switch (count_stopper(mode_reader())) {
+  switch (count_stopper(get_switch())) {
   case 1:
     counter++;
     break;
